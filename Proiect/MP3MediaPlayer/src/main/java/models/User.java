@@ -1,4 +1,4 @@
-package model;
+package models;
 
 import jakarta.persistence.*;
 import java.util.List;
@@ -27,10 +27,20 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private List<Playlist> created_playlists;
 
-    public User() {}
+    public User() {
+        created_playlists = new java.util.ArrayList<>();
+    }
 
     public User(int id, String username, String email, Subscription subscription, List<Playlist> created_playlists, String password) {
         this.id = id;
+        this.username = username;
+        this.email = email;
+        this.subscription = subscription;
+        this.created_playlists = created_playlists;
+        this.password = password;
+    }
+
+    public User( String username, String email, Subscription subscription, List<Playlist> created_playlists, String password) {
         this.username = username;
         this.email = email;
         this.subscription = subscription;

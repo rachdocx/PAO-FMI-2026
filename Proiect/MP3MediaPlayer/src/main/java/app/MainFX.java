@@ -1,0 +1,41 @@
+package app;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class MainFX extends Application {
+
+    public static EntityManagerFactory emf;
+    public static EntityManager em;
+
+    @Override
+    public void start(Stage stage) throws Exception {
+
+        emf = Persistence.createEntityManagerFactory("spotify-pu");
+        em = emf.createEntityManager();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/SignUpView.fxml"));
+
+        Scene scene = new Scene(fxmlLoader.load(), 320, 400);
+        stage.setTitle("Spotify Clone MVC");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    @Override
+    public void stop() {
+        if (em != null)
+            em.close();
+        if (emf != null)
+            emf.close();
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.SignUpController">
+    <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/></padding>
+
+    <Label text="Creare Cont Spotify" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="usernameField" promptText="Username"/>
+    <TextField fx:id="emailField" promptText="Email"/>
+    <PasswordField fx:id="passwordField" promptText="Parola"/>
+
+    <Button text="Sign Up" onAction="#onSignUpClick" style="-fx-background-color: #1DB954; -fx-text-fill: white;"/>
+    <Label fx:id="mesajStatus" textFill="red"/>
+</VBox>

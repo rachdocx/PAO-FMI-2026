@@ -6,13 +6,13 @@
     <persistence-unit name="spotify-pu">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>model.User</class>
-        <class>model.Subscription</class>
-        <class>model.Playlist</class>
-        <class>model.Song</class>
-        <class>model.Artist</class>
-        <class>model.Album</class>
-        <class>model.Podcast</class>
+        <class>models.User</class>
+        <class>models.Subscription</class>
+        <class>models.Playlist</class>
+        <class>models.Song</class>
+        <class>models.Artist</class>
+        <class>models.Album</class>
+        <class>models.Podcast</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
