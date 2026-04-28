@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.MainPageController">
+
+    <Label text="Welcome to Rachify" />
+
+    <VBox alignment="CENTER" spacing="10.0">
+
+        <Button fx:id="signInButton" text="Sign In" onAction="#handleSignIn" />
+
+        <Button fx:id="signUpButton" text="Sign Up" onAction="#handleSignUp" />
+
+    </VBox>
+</VBox>

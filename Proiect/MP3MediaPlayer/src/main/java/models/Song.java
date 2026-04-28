@@ -8,6 +8,8 @@ public class Song extends AudioFile{
     @ManyToOne
     @JoinColumn(name = "artist_id")
     private Artist artist;
+
+    @Column(nullable = false)
     private String genre;
 
     @ManyToOne

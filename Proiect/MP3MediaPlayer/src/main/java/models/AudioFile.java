@@ -1,18 +1,25 @@
 package models;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "audio_files")
 public abstract class AudioFile implements Comparable<AudioFile> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected int id;
+
+    @Column(nullable = false)
     protected int duration_seconds;
+
+    @Column(nullable = false)
     protected int stream_count;
+
+    @Column(nullable = false)
     protected String file_name;
+
+    @Column(nullable = false)
     protected String stream_url;
 
     protected AudioFile() {}

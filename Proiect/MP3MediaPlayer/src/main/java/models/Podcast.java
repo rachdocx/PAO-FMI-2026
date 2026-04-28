@@ -11,6 +11,8 @@ public class Podcast extends AudioFile{
     @ManyToOne
     @JoinColumn(name = "host_id")
     private Artist host;
+
+    @Column(nullable = false)
     private String topic;
 
     @ElementCollection

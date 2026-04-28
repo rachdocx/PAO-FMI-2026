@@ -7,7 +7,11 @@ import java.util.List;
 @Table(name = "artists")
 @PrimaryKeyJoinColumn(name = "user_id")
 public class Artist extends User{
+
+    @Column(nullable = false)
     private int monthly_listeners;
+
+    @Column(nullable = false)
     private String scene_name;
 
     @OneToMany(mappedBy = "artist")

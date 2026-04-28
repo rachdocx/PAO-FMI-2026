@@ -10,12 +10,14 @@ public class Album {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false)
     private String title;
 
     @ManyToOne
     @JoinColumn(name = "artist_id")
     private Artist artist;
 
+    @Column(nullable = false)
     private int release_year;
 
     @OneToMany(mappedBy = "album")

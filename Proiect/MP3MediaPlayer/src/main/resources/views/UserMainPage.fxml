@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.UserMainPageController">
+    <left>
+        <VBox>
+            <Label text = "Welcome to Rachify"/>
+            <Label text = "Your Playlists"/>
+            <ListView fx:id="playlistView" />
+        </VBox>
+
+    </left>
+    <center>
+        <HBox>
+            <TextField fx:id="searchField" promptText="Search..."/>
+            <Button text = "Search"/>
+        </HBox>
+    </center>
+    <bottom>
+        <HBox alignment ="CENTER">
+            <Label fx:id = "currentAudioLabel" text = "No selected audio"/>
+
+            <HBox alignment="CENTER">
+                <Button text="⏮" />
+                <Button text="▶ Play" style="-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 20;"/>
+                <Button text="⏭" />
+            </HBox>
+        </HBox>
+    </bottom>
+</BorderPane>

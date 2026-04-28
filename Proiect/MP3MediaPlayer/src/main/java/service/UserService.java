@@ -2,12 +2,14 @@ package service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import models.Playlist;
 import models.Subscription;
 import models.User;
 
 import java.util.List;
+import java.util.Objects;
 
 public class UserService {
 
@@ -51,6 +53,22 @@ public class UserService {
                 em.getTransaction().rollback();
             }
             e.printStackTrace();
+        }
+    }
+
+    public User signInUser(String email, String password) {
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.email = :email AND u.password = :password", User.class);
+            query.setParameter("email", email);
+            query.setParameter("password", password);
+            return query.getSingleResult();
+
+
+        } catch (NoResultException e) {
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
