@@ -4,6 +4,10 @@ import app.MainFX;
 import jakarta.persistence.EntityManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -32,9 +36,17 @@ public class SignInController {
                 email_field.clear();
                 password_field.clear();
 
-                SceneChanger.changeScene(event, "/views/UserMainPage.fxml");
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/UserMainPage.fxml"));
 
+                Parent newRoot = loader.load();
 
+                UserMainPageController ctrl = loader.getController();
+
+                ctrl.setUser(auth);
+
+                Scene current_scene = ((Node) event.getSource()).getScene();
+
+                current_scene.setRoot((newRoot));
             }
             else{
                 auth_state.setStyle("-fx-text-fill: red");
