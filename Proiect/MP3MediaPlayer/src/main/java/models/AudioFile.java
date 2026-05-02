@@ -66,6 +66,14 @@ public abstract class AudioFile implements Comparable<AudioFile> {
         return file_name;
     }
 
+    public int getStream_count() {
+        return stream_count;
+    }
+
+    public void setStream_count(int stream_count) {
+        this.stream_count = stream_count;
+    }
+
     public void setFile_name(String file_name) {
         this.file_name = file_name;
     }

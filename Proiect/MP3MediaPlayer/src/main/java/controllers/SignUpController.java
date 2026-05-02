@@ -1,6 +1,7 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -19,6 +20,15 @@ public class SignUpController {
     @FXML private PasswordField passwordField;
     @FXML private Label mesajStatus;
 
+    @FXML private CheckBox artistCheckBox;
+    @FXML private TextField sceneNameField;
+
+    @FXML
+    private void onArtistCheckBoxClick(){
+        boolean is_artist = artistCheckBox.isSelected();
+        sceneNameField.setVisible(is_artist);
+        sceneNameField.setManaged(is_artist);
+    }
     @FXML
     protected void onSignUpClick(ActionEvent event) {
         String user = usernameField.getText();
@@ -29,7 +39,12 @@ public class SignUpController {
         try {
             em = MainFX.getEmf().createEntityManager();
             UserService userService = new UserService(em);
-            userService.signUpUser(user, email, null, null, pass);
+            if(artistCheckBox.isSelected()){
+                userService.signUpArtist(user, email, pass, sceneNameField.getText());
+            }
+            else {
+                userService.signUpUser(user, email, null, null, pass);
+            }
             mesajStatus.setStyle("-fx-text-fill: green;");
             mesajStatus.setText("Account successfully created");
             usernameField.clear();

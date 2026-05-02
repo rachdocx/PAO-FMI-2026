@@ -9,12 +9,14 @@
         <class>models.User</class>
         <class>models.Subscription</class>
         <class>models.Playlist</class>
+        <class>models.AudioFile</class>
         <class>models.Song</class>
         <class>models.Artist</class>
         <class>models.Album</class>
         <class>models.Podcast</class>
 
         <properties>
+
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/spotify_db"/>
             <property name="jakarta.persistence.jdbc.user" value="db_user"/>

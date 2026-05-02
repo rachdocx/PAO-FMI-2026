@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import models.Artist;
 import models.User;
 import service.UserService;
 import utils.SceneChanger;
@@ -29,10 +30,11 @@ public class SignInController {
         try{
             em = MainFX.getEmf().createEntityManager();
             UserService userService = new UserService(em);
-            User auth = userService.signInUser(email, pass);
-            if(auth != null){
+//            User auth = userService.signInUser(email, pass);
+            Artist artist = userService.signInArtist(email, pass);
+            if(artist != null){
                 auth_state.setStyle("-fx-text-fill: green");
-                auth_state.setText("Welcome back " + auth.getUsername());
+                auth_state.setText("Welcome back artist " + artist.getUsername());
                 email_field.clear();
                 password_field.clear();
 
@@ -42,15 +44,36 @@ public class SignInController {
 
                 UserMainPageController ctrl = loader.getController();
 
-                ctrl.setUser(auth);
+                ctrl.setUser(artist);
 
                 Scene current_scene = ((Node) event.getSource()).getScene();
 
                 current_scene.setRoot((newRoot));
             }
             else{
-                auth_state.setStyle("-fx-text-fill: red");
-                auth_state.setText("Password or Email are wrong!");
+                User auth = userService.signInUser(email, pass);
+                if(auth != null){
+                    auth_state.setStyle("-fx-text-fill: green");
+                    auth_state.setText("Welcome back " + auth.getUsername());
+                    email_field.clear();
+                    password_field.clear();
+
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/UserMainPage.fxml"));
+
+                    Parent newRoot = loader.load();
+
+                    UserMainPageController ctrl = loader.getController();
+
+                    ctrl.setUser(auth);
+
+                    Scene current_scene = ((Node) event.getSource()).getScene();
+
+                    current_scene.setRoot((newRoot));
+                }
+                else{
+                    auth_state.setStyle("-fx-text-fill: red");
+                    auth_state.setText("Password or Email are wrong!");
+                }
             }
         }catch(Exception e){
             e.printStackTrace();

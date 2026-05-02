@@ -18,8 +18,9 @@
     <center>
         <HBox>
             <TextField fx:id="searchField" promptText="Search..."/>
-            <Button text = "Search"/>
+            <Button text="Search" onAction="#onSearchClick"/>
         </HBox>
+        <ListView fx:id = "search_results"/>
     </center>
     <bottom>
         <HBox alignment ="CENTER">

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import models.Playlist;
+import models.Song;
 import models.User;
 
 import java.util.ArrayList;
@@ -15,6 +16,26 @@ public class PlaylistService {
     public PlaylistService(EntityManager em){
         this.em = em;
     }
+
+    public void addSongToPlaylist(int playlist_id, int song_id){
+        try {
+            em.getTransaction().begin();
+
+            Playlist playlist = em.find(Playlist.class, playlist_id);
+            Song song = em.find(Song.class, song_id);
+
+            if (playlist != null && song != null) {
+                playlist.getTracklist().add(song);
+                em.merge(playlist);
+            }
+        }
+        catch(Exception e){
+            if(em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            e.printStackTrace();
+        }
+    }
+
     public List<String> userPlaylists(User user) {
         int user_id = user.getId();
 

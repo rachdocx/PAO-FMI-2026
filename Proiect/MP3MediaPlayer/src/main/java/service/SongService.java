@@ -9,10 +9,17 @@ import models.*;
 import java.security.spec.ECField;
 import java.util.List;
 public class SongService {
+
     private EntityManager em;
 
     public SongService(EntityManager em){
         this.em = em;
+    }
+
+    public List<Song> searchSongByName(String name){
+        TypedQuery<Song> query = em.createQuery("SELECT s FROM Song s WHERE lower(s.file_name) LIKE lower(:name) ", Song.class);
+        query.setParameter("name", name);
+        return query.getResultList();
     }
 
     public void addSong(String file_name, int duration_seconds, String stream_url, int artist_id, String genre, int stream_count){
@@ -42,7 +49,6 @@ public class SongService {
             return null;
         }
     }
-
 
 
 }

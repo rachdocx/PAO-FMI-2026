@@ -5,7 +5,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "artists")
-@PrimaryKeyJoinColumn(name = "user_id")
+@PrimaryKeyJoinColumn(name = "id")
 public class Artist extends User{
 
     @Column(nullable = false)

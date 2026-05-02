@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import models.Artist;
 import models.Playlist;
 import models.Subscription;
 import models.User;
@@ -18,6 +19,39 @@ public class UserService {
 
     public UserService(EntityManager em) {
         this.em = em;
+    }
+    public Artist signInArtist(String email, String password) {
+        try {
+            TypedQuery<Artist> query = em.createQuery(
+                    "SELECT a FROM Artist a WHERE a.email = :email AND a.password = :password", Artist.class
+            );
+            query.setParameter("email", email);
+            query.setParameter("password", password);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void signUpArtist(String username, String email, String password, String scene_name){
+        try{
+            em.getTransaction().begin();
+            Artist artist = new Artist();
+            artist.setUsername(username);
+            artist.setEmail(email);
+            artist.setScene_name(scene_name);
+            artist.setMonthly_listeners(0);
+            artist.setPassword(password);
+            em.persist(artist);
+            em.getTransaction().commit();
+        }catch (Exception e){
+            if(em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            e.printStackTrace();
+        }
     }
 
     public void signUpUser(String username, String email, Subscription subscription, List<Playlist> created_playlists, String password){
