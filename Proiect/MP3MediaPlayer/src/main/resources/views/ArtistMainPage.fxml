@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ArtistMainPageController">
+    <left>
+        <VBox>
+            <Label text = "Welcome to Rachify"/>
+            <Label text = "Your Albums"/>
+            <ListView fx:id="albumView" />
+            <Button text="+ Create album" onAction="#onAddAlbumPanelClick"/>
+
+            <VBox fx:id="addAlbumPanel" visible = "false" managed="false">
+                <TextField fx:id="release_yearField" promptText="Release Year"/>
+                <TextField fx:id="albumTitleField" promptText="Album's title"/>
+
+                <Button text="Save album" onAction="#onAddAlbumClick"/>
+            </VBox>
+
+        </VBox>
+
+    </left>
+    <center>
+<!-- TABEL IN MIJLOC CU TRACK URILE ALBUMULUI PE CARE APESI TODO-->
+        <VBox fx:id="AlbumSongs" visible="false" managed="false">
+<!--  sa fac sa apara numele albumului TODO-->
+            <Label text = "Selected Album's songs"/>
+            <ListView fx:id="songAlbumView"/>
+        </VBox>
+    </center>
+    <right>
+        <VBox>
+            <Label text = "Your Songs"/>
+            <ListView fx:id="songView" />
+            <Button text="+ Add Song" onAction="#onAddSongPanelClick"/>
+
+            <VBox fx:id="addSongPanel" visible="false" managed="false">
+                <TextField fx:id="titleField" promptText="Song title"/>
+                <TextField fx:id="genreField" promptText="Genre"/>
+                <TextField fx:id="durationField" promptText="Duration"/>
+                <TextField fx:id="urlField" promptText="Stream URL"/>
+                <Button text="Save song" onAction="#onAddSongClick"/>
+            </VBox>
+        </VBox>
+    </right>
+</BorderPane>

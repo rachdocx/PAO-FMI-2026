@@ -38,13 +38,13 @@ public class SignInController {
                 email_field.clear();
                 password_field.clear();
 
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/UserMainPage.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ArtistMainPage.fxml"));
 
                 Parent newRoot = loader.load();
 
-                UserMainPageController ctrl = loader.getController();
+                ArtistMainPageController ctrl = loader.getController();
 
-                ctrl.setUser(artist);
+                ctrl.setArtist(artist);
 
                 Scene current_scene = ((Node) event.getSource()).getScene();
 

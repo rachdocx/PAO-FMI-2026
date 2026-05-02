@@ -25,8 +25,7 @@ public class Album {
 
     public Album() {}
 
-    public Album(int id, String title, Artist artist, int release_year, List<Song> tracklist) {
-        this.id = id;
+    public Album(String title, Artist artist, int release_year, List<Song> tracklist) {
         this.title = title;
         this.artist = artist;
         this.release_year = release_year;
