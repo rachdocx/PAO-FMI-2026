@@ -25,7 +25,7 @@
 
     </left>
     <center>
-<!-- TABEL IN MIJLOC CU TRACK URILE ALBUMULUI PE CARE APESI TODO-->
+<!-- TABEL IN MIJLOC CU TRACK URILE ALBUMULUI PE CARE APESU TODO-->
         <VBox fx:id="AlbumSongs" visible="false" managed="false">
 <!--  sa fac sa apara numele albumului TODO-->
             <Label text = "Selected Album's songs"/>
@@ -36,6 +36,11 @@
         <VBox>
             <Label text = "Your Songs"/>
             <ListView fx:id="songView" />
+            <VBox fx:id = "assignAlbumPanel" visible="false" managed="false">
+                <Label fx:id = "selectedSongLabel" text="Selected song"/>
+                <ComboBox fx:id = "albumSelectionBox" promptText="Select an album"/>
+                <Button text="Add to album" onAction="#onAssignToAlbumClick"/>
+            </VBox>
             <Button text="+ Add Song" onAction="#onAddSongPanelClick"/>
 
             <VBox fx:id="addSongPanel" visible="false" managed="false">

@@ -23,6 +23,4 @@ public class MainPageController {
         SceneChanger.changeScene(event, "/views/SignUpView.fxml");
     }
 
-
-
 }
