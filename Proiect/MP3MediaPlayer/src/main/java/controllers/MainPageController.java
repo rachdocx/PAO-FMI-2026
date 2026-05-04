@@ -6,8 +6,6 @@ import javafx.scene.control.Button;
 
 import utils.SceneChanger;
 
-import javax.swing.*;
-
 public class MainPageController {
     @FXML
     private Button sign_in_button;

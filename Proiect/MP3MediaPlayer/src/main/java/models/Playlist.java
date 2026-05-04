@@ -27,8 +27,8 @@ public class Playlist {
 
     public Playlist() {}
 
-    public Playlist(int id, String playlist_name, List<Song> tracklist) {
-        this.id = id;
+    public Playlist(String playlist_name, User user, List<Song> tracklist) {
+        this.owner = user;
         this.playlist_name = playlist_name;
         this.tracklist = tracklist;
     }

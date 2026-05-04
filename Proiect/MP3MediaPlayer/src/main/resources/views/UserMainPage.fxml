@@ -12,25 +12,48 @@
             <Label text = "Welcome to Rachify"/>
             <Label text = "Your Playlists"/>
             <ListView fx:id="playlistView" />
+            <Button text="+ Create a new Playlist" onAction="#onAddPlaylistPanelClick"/>
+
+            <VBox fx:id="addPlaylistPanel" visible="false" managed="false">
+                <TextField fx:id="playlist_nameField" promptText="Insert album name"/>
+                <Button text="Save Playlist" onAction="#onAddPlaylistClick"/>
+            </VBox>
         </VBox>
 
     </left>
     <center>
-        <HBox>
-            <TextField fx:id="searchField" promptText="Search..."/>
-            <Button text="Search" onAction="#onSearchClick"/>
-        </HBox>
-        <ListView fx:id = "search_results"/>
+        <VBox fx:id="PlaylistSongs" visible="false" managed="false">
+            <Label text = "Selected Playlist's songs"/>
+            <ListView fx:id="songPlaylistView"/>
+            <Button text="Play this Playlist" onAction="#onPlayPlaylist"/>
+        </VBox>
     </center>
+    <right>
+        <VBox>
+            <HBox>
+                <TextField fx:id="search_field" promptText="Search..."/>
+                <Button text="Search" onAction="#onSearchClick"/>
+            </HBox>
+            <ListView fx:id = "search_results"/>
+            <VBox fx:id="assignPlaylistPanel" visible="false" managed="false">
+                <Label fx:id="selectedSongLabel" text="Selected song"/>
+                <ComboBox fx:id="playlistSelectionBox" promptText="Select a playlist"/>
+                <Button text="Add to playlist" onAction="#onAssignToPlaylistClick"/>
+            </VBox>
+
+        </VBox>
+    </right>
     <bottom>
         <HBox alignment ="CENTER">
             <Label fx:id = "currentAudioLabel" text = "No selected audio"/>
 
             <HBox alignment="CENTER">
-                <Button text="⏮" />
-                <Button text="▶ Play" style="-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 20;"/>
-                <Button text="⏭" />
+                <Button fx:id="skipButton" text="⏮" onAction="#onSkipPrev" visible="false" managed="false"/>
+                <Button fx:id = "playButton" text="▶ Play" onAction="#onPlayClick" style="-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 20;"/>
+                <Button fx:id="prevButton" text="⏭" onAction="#onSkipNext" visible="false" managed="false"/>
             </HBox>
+
+            <Label fx:id="currentPlaylistLabel" text = "No playlist selected"/>
         </HBox>
     </bottom>
 </BorderPane>
