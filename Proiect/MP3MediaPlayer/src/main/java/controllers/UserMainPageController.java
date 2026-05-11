@@ -5,17 +5,24 @@ import jakarta.persistence.EntityManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import models.Advertisement;
 import models.Song;
 import models.User;
+import service.AdvertisementService;
 import service.PlaylistService;
 import service.SongService;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UserMainPageController {
     private User current_user;
+
+    //TODO de facut logica pentru diferite subscriptii ce poate face un user DONE
+    //TODO de facut logica si pentru delete doar pentru add
+    //TODO de bagat alta metoda care afiseaza frumos cate secunde are piesa/album/artist/an_apartie_album
 
     @FXML
     private ListView<String> playlistView;
@@ -62,12 +69,17 @@ public class UserMainPageController {
     private boolean isPlaying = false;
 
 
-
+    private List<Advertisement> session_ads = new ArrayList<>();
     private List<String> currentPlaylistUrls = new ArrayList<>();
     private List<String> getCurrentPlaylistSongNames = new ArrayList<>();
     private int currentSongIndex;
 
     private List<Song> search_res;
+
+    private int songs_played_session = 0;
+    private int songs_played_hour = 0;
+    private long hour = System.currentTimeMillis();
+    private int ad_index = 0;
 
 
     @FXML
@@ -103,6 +115,7 @@ public class UserMainPageController {
     }
 
     private void playNextSongInQueue() {
+
         if (currentSongIndex >= currentPlaylistUrls.size() || currentSongIndex < 0) {
             if(mediaPlayer != null) {
                 mediaPlayer.stop();
@@ -116,6 +129,42 @@ public class UserMainPageController {
             skipButton.setManaged(false);
             prevButton.setVisible(false);
             prevButton.setManaged(false);
+            return;
+        }
+
+
+        if(reachedHourLimit()){
+            currentAudioLabel.setText("Reached hourly tracks limit for the Free Subscription");
+            if(mediaPlayer != null){
+                mediaPlayer.stop();
+                mediaPlayer = null;
+            }
+            playButton.setText("▶ Play");
+            isPlaying = false;
+            return;
+        }
+
+
+        if(shouldPlayAd()){
+            playAd(() -> {
+                songs_played_hour++;
+                songs_played_session++;
+                actuallyPlaySong();
+            });
+            return;
+        }
+
+
+        songs_played_hour++;
+        songs_played_session++;
+        actuallyPlaySong();
+    }
+
+    private void actuallyPlaySong() {
+        if (currentSongIndex >= currentPlaylistUrls.size() || currentSongIndex < 0) {
+            playButton.setText("▶ Play");
+            isPlaying = false;
+            currentAudioLabel.setText("Playlist finished");
             return;
         }
 
@@ -206,6 +255,12 @@ public class UserMainPageController {
 
     public void setUser(User user){
         this.current_user = user;
+        if((Objects.equals(this.current_user.getSubscription().getName(), "Free")) || (Objects.equals(this.current_user.getSubscription().getName(), "Premium")))
+        {
+            EntityManager em = MainFX.getEmf().createEntityManager();
+            AdvertisementService advertisementService = new AdvertisementService(em);
+            session_ads = advertisementService.loadAds();
+        }
         loadUserPlaylists();
 
         //listener pentru selectare playlist
@@ -405,6 +460,79 @@ public class UserMainPageController {
                 if (em != null && em.isOpen())
                     em.close();
             }
+        }
+    }
+
+    //logica pentru reclame
+    private boolean shouldPlayAd(){
+        String sub = this.current_user.getSubscription().getName();
+
+        if(sub.equals("Premium Plus")){
+            return false;
+        }
+        if(sub.equals("Free")){
+            if(songs_played_session > 0 && songs_played_session % 3 ==0){
+                return true;
+            }
+            else
+                return false;
+        }
+        if(sub.equals("Premium")){
+            if(songs_played_session > 0 && songs_played_session % 10 ==0){
+                return true;
+            }
+            else
+                return false;
+        }
+        return false;
+    }
+
+    private boolean reachedHourLimit(){
+        String sub = this.current_user.getSubscription().getName();
+        if(!sub.equals("Free"))
+            return false;
+
+        long now = System.currentTimeMillis();
+        if (now - hour >= 3_600_000) {
+            hour = now;
+            songs_played_hour = 0;
+        }
+
+        return songs_played_session >= 10;
+    }
+
+    private void playAd(Runnable afterAd){
+        if(session_ads.isEmpty()){
+            afterAd.run();
+            return;
+        }
+
+        Advertisement ad = session_ads.get(ad_index % session_ads.size());
+        ad_index++;
+
+        currentAudioLabel.setText("Advertisement: " + ad.getBrand_name());
+
+        if(mediaPlayer != null){
+            mediaPlayer.stop();
+            mediaPlayer = null;
+        }
+
+        try{
+            Media media = new Media(ad.getStream_url());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.play();
+
+            playButton.setText("Advertisement");
+            isPlaying = true;
+
+            mediaPlayer.setOnEndOfMedia(() -> {
+                mediaPlayer.stop();
+                mediaPlayer = null;
+                afterAd.run();
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+            afterAd.run();
         }
     }
 }

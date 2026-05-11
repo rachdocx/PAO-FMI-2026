@@ -16,12 +16,15 @@ public class Subscription {
     @Column(nullable = false)
     private double price;
 
+    @Column(nullable = false)
+    private String description;
+
     public Subscription() {}
 
-    public Subscription(int id, String name, double price) {
-        this.id = id;
+    public Subscription(String name, double price, String description) {
         this.name = name;
         this.price = price;
+        this.description = description;
     }
 
     public Subscription(String name, double price) {
@@ -48,6 +51,8 @@ public class Subscription {
     public double getPrice() {
         return price;
     }
+
+    public String getDescription(){return description;}
 
     public void setPrice(double price) {
         this.price = price;

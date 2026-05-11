@@ -14,8 +14,15 @@
     <TextField fx:id="usernameField" promptText="Username"/>
     <TextField fx:id="emailField" promptText="Email"/>
     <PasswordField fx:id="passwordField" promptText="Parola"/>
+
     <CheckBox fx:id="artistCheckBox" text="Register as Artist" onAction="#onArtistCheckBoxClick"/>
+    <CheckBox fx:id="userCheckBox" text="Register as User" onAction="#onUserCheckBoxClick"/>
+
     <TextField fx:id="sceneNameField" promptText="Stage Name" visible="false" managed="false"/>
+
+    <Label fx:id="userSubscriptionLabel" text="Choose your subscription" visible="false" managed="false"/>
+    <ListView fx:id="subscriptionList" visible="false" managed="false"/>
+
     <Button text="Sign Up" onAction="#onSignUpClick" style="-fx-background-color: #1DB954; -fx-text-fill: white;"/>
     <Label fx:id="mesajStatus" textFill="red"/>
 </VBox>

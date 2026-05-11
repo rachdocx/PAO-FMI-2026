@@ -20,7 +20,7 @@ public class Album {
     @Column(nullable = false)
     private int release_year;
 
-    @OneToMany(mappedBy = "album")
+    @OneToMany(mappedBy = "album", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Song> tracklist;
 
     public Album() {}

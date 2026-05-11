@@ -35,6 +35,24 @@ public class AlbumService {
         }
     }
 
+    public void deleteAlbum(String album_title, int id_artist){
+        try{
+            em.getTransaction().begin();
+            TypedQuery<Album> query = em.createQuery("SELECT a FROM Album a WHERE a.title = :album_title AND a.artist.id = :id_artist", Album.class);
+            query.setParameter("album_title", album_title);
+            query.setParameter("id_artist", id_artist);
+
+            Album album = query.getSingleResult();
+            em.remove(album);
+            em.getTransaction().commit();
+
+        }catch (Exception e) {
+            if (em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            e.printStackTrace();
+        }
+    }
+
     public void addAlbum(String title, int release_year, Artist artist) {
         try {
             em.getTransaction().begin();

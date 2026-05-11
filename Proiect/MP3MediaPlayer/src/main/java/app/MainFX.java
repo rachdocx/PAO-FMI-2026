@@ -23,6 +23,14 @@ public class MainFX extends Application {
         emf = Persistence.createEntityManagerFactory("spotify-pu");
         em = emf.createEntityManager();
 
+        // Seed advertisements at startup
+        EntityManager seedEm = emf.createEntityManager();
+        try {
+            new service.AdvertisementService(seedEm).seedAds();
+        } finally {
+            seedEm.close();
+        }
+
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/MainPage.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);

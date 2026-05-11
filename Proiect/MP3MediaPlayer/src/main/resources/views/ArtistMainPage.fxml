@@ -19,8 +19,9 @@
                 <TextField fx:id="albumTitleField" promptText="Album's title"/>
 
                 <Button text="Save album" onAction="#onAddAlbumClick"/>
-            </VBox>
 
+            </VBox>
+            <Button fx:id ="deleteAlbumButton" text=" Delete this album" onAction="#onDeleteAlbum" visible="false" managed="false"/>
         </VBox>
 
     </left>
@@ -42,7 +43,7 @@
                 <Button text="Add to album" onAction="#onAssignToAlbumClick"/>
             </VBox>
             <Button text="+ Add Song" onAction="#onAddSongPanelClick"/>
-
+            <Button fx:id = "deleteSongButton" text="Delete song" onAction="#onDeleteSong" visible="false" managed="false"/>
             <VBox fx:id="addSongPanel" visible="false" managed="false">
                 <TextField fx:id="titleField" promptText="Song title"/>
                 <TextField fx:id="genreField" promptText="Genre"/>
