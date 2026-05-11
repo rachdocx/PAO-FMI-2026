@@ -80,7 +80,27 @@ public class UserMainPageController {
     private int songs_played_hour = 0;
     private long hour = System.currentTimeMillis();
     private int ad_index = 0;
+    private String selected_playlist;
 
+    @FXML
+    public void onDeletePlaylist(){
+        EntityManager em = null;
+        try{
+            em = MainFX.getEmf().createEntityManager();
+            PlaylistService playlistService = new PlaylistService(em);
+            playlistService.deletePlaylist(selected_playlist, this.current_user.getId());
+
+            PlaylistSongs.setVisible(false);
+            PlaylistSongs.setManaged(false);
+
+            loadUserPlaylists();
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(em != null && em.isOpen())
+                em.close();
+        }
+    }
 
     @FXML
     private void onPlayPlaylist(){
@@ -267,6 +287,7 @@ public class UserMainPageController {
         playlistView.setOnMouseClicked(event ->{
             String selectedPlaylist = playlistView.getSelectionModel().getSelectedItem();
             if(selectedPlaylist != null){
+                selected_playlist = selectedPlaylist;
                 loadPlaylistTracks(selectedPlaylist);
                 currentPlaylistLabel.setText(selectedPlaylist);
             }
@@ -404,6 +425,7 @@ public class UserMainPageController {
             addPlaylistPanel.setManaged(false);
             addPlaylistPanel.setVisible(false);
             loadUserPlaylists();
+            loadPlaylistTracks(selected_playlist);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

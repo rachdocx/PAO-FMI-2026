@@ -7,6 +7,7 @@ import jakarta.persistence.TypedQuery;
 
 import models.*;
 
+import javax.swing.*;
 import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,9 @@ public class SongService {
 
     private EntityManager em;
 
+    public SongService(EntityManager em){
+        this.em = em;
+    }
     public void deleteSong(String song_title, int id_artist) {
         try {
             em.getTransaction().begin();
@@ -26,6 +30,24 @@ public class SongService {
             em.remove(song);
             em.getTransaction().commit();
         } catch (Exception e) {
+            if (em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            e.printStackTrace();
+        }
+    }
+
+    public void removeSongFromAlbum(String song_title, int id_artist){
+        try{
+            em.getTransaction().begin();
+            TypedQuery<Song> query = em.createQuery("SELECT s FROM Song s WHERE s.artist.id = :id_artist and s.file_name = :file_name", Song.class);
+            //ciudat mod de a retine datele, probleme daca exista doua piese cu aceleasi nume ale aceluias artist dar putin probabil
+            query.setParameter("id_artist", id_artist);
+            query.setParameter("file_name", song_title);
+            Song song = query.getSingleResult();
+            song.setAlbum(null);
+            em.merge(song);
+            em.getTransaction().commit();
+        }catch (Exception e) {
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
             e.printStackTrace();
@@ -52,10 +74,6 @@ public class SongService {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public SongService(EntityManager em) {
-        this.em = em;
     }
 
     public List<Song> searchSongByName(String name) {

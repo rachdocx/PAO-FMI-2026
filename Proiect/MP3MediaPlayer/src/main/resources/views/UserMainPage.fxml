@@ -26,6 +26,7 @@
             <Label text = "Selected Playlist's songs"/>
             <ListView fx:id="songPlaylistView"/>
             <Button text="Play this Playlist" onAction="#onPlayPlaylist"/>
+            <Button text="Delete this playlist" onAction="#onDeletePlaylist"/>
         </VBox>
     </center>
     <right>

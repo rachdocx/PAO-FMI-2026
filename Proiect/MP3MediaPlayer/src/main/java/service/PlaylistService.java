@@ -17,6 +17,21 @@ public class PlaylistService {
         this.em = em;
     }
 
+    public void deletePlaylist(String playlist_name, int id_user){
+        try{
+            em.getTransaction().begin();
+            TypedQuery<Playlist> query = em.createQuery("SELECT p FROM Playlist p WHERE p.owner.id = :user_id AND p.playlist_name = :playlist_name", Playlist.class);
+            query.setParameter("user_id", id_user);
+            query.setParameter("playlist_name", playlist_name);
+            Playlist playlist = query.getSingleResult();
+            em.remove(playlist);
+            em.getTransaction().commit();
+        }catch(Exception e){
+            if(em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            e.printStackTrace();
+        }
+    }
     // metoda ce returneaza melodiile unui playlist ca string-uri
     public List<String> playlistTracks(String playlistTitle, int userId) {
         try {

@@ -15,6 +15,7 @@ import java.util.List;
 
 public class ArtistMainPageController {
     private Artist current_artist;
+    private String current_album;
 
     // TODO de facut logica si pentru delete doar pentru add
 
@@ -57,9 +58,13 @@ public class ArtistMainPageController {
 
     @FXML
     private Button deleteAlbumButton;
-
     @FXML
     private Button deleteSongButton;
+    @FXML
+    private Button removeFromAlbumButton;
+
+    @FXML
+    private VBox songDetails;
 
     @FXML
     private void onDeleteAlbum() {
@@ -177,6 +182,24 @@ public class ArtistMainPageController {
     }
 
     @FXML
+    private void onRemoveFromAlbum(){
+        String selectedSong = songAlbumView.getSelectionModel().getSelectedItem();
+        EntityManager em = null;
+        try{
+            em = MainFX.getEmf().createEntityManager();
+            SongService songService = new SongService(em);
+            songService.removeSongFromAlbum(selectedSong, this.current_artist.getId());
+
+            removeFromAlbumButton.setVisible(false);
+            removeFromAlbumButton.setManaged(false);
+
+            loadAlbumTracks(current_album);
+        }catch (Exception e) {
+            if (em != null && em.isOpen())
+                em.close();
+        }
+    }
+    @FXML
     private void onAddSongClick() {
         String title = titleField.getText();
         String genre = genreField.getText();
@@ -213,8 +236,25 @@ public class ArtistMainPageController {
             String selectedTitle = albumView.getSelectionModel().getSelectedItem();
             if (selectedTitle != null) {
                 loadAlbumTracks(selectedTitle);
+                current_album = selectedTitle;
                 deleteAlbumButton.setVisible(true);
                 deleteAlbumButton.setManaged(true);
+
+                songDetails.setVisible(false);
+                songDetails.setManaged(false);
+
+
+            }
+        });
+
+        songAlbumView.setOnMouseClicked(event -> {
+            String selectedSong = songAlbumView.getSelectionModel().getSelectedItem();
+            if(selectedSong != null){
+                removeFromAlbumButton.setVisible(true);
+                removeFromAlbumButton.setManaged(true);
+
+                songDetails.setVisible(false);
+                songDetails.setManaged(false);
             }
         });
 
@@ -222,11 +262,18 @@ public class ArtistMainPageController {
             String selectedSong = songView.getSelectionModel().getSelectedItem();
             if (selectedSong != null) {
                 selectedSongLabel.setText(selectedSong);
+
+                songDetails.setVisible(true);
+                songDetails.setManaged(true);
+
                 assignAlbumPanel.setVisible(true);
                 assignAlbumPanel.setManaged(true);
 
                 deleteSongButton.setVisible(true);
                 deleteSongButton.setManaged(true);
+
+                removeFromAlbumButton.setVisible(false);
+                removeFromAlbumButton.setManaged(false);
             }
         });
     }
