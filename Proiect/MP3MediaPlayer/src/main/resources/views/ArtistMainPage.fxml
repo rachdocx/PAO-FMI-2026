@@ -10,6 +10,7 @@
     <left>
         <VBox>
             <Label text="Welcome to Rachify"/>
+            <Button text="Log out" onAction="#onLogOut"/>
             <Label text="Your Albums"/>
             <ListView fx:id="albumView" />
             <Button text="+ Create album" onAction="#onAddAlbumPanelClick"/>
@@ -39,6 +40,14 @@
             <ListView fx:id="songView" />
             <Button text="+ Add Song" onAction="#onAddSongPanelClick"/>
             
+            <VBox fx:id="addSongPanel" visible="false" managed="false">
+                <TextField fx:id="titleField" promptText="Song title"/>
+                <TextField fx:id="genreField" promptText="Genre"/>
+                <TextField fx:id="durationField" promptText="Duration"/>
+                <TextField fx:id="urlField" promptText="Stream URL"/>
+                <Button text="Save song" onAction="#onAddSongClick"/>
+            </VBox>
+            
             <VBox fx:id="songDetails" visible="false" managed="false">
                 <VBox fx:id="assignAlbumPanel" visible="false" managed="false">
                     <Label fx:id="selectedSongLabel" text="Selected song"/>
@@ -47,14 +56,6 @@
                 </VBox>
                 
                 <Button fx:id="deleteSongButton" text="Delete song" onAction="#onDeleteSong" visible="false" managed="false"/>
-                
-                <VBox fx:id="addSongPanel" visible="false" managed="false">
-                    <TextField fx:id="titleField" promptText="Song title"/>
-                    <TextField fx:id="genreField" promptText="Genre"/>
-                    <TextField fx:id="durationField" promptText="Duration"/>
-                    <TextField fx:id="urlField" promptText="Stream URL"/>
-                    <Button text="Save song" onAction="#onAddSongClick"/>
-                </VBox>
             </VBox>
         </VBox>
     </right>

@@ -38,6 +38,9 @@ public abstract class AudioFile implements Comparable<AudioFile> {
         return Integer.compare(this.duration_seconds, other.duration_seconds);
     }
 
+    public void incStreamCount(){
+        this.stream_count++;
+    }
     public int getId() {
         return id;
     }

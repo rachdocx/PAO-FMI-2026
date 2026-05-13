@@ -3,6 +3,10 @@ package controllers;
 import app.MainFX;
 import jakarta.persistence.EntityManager;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import models.Artist;
@@ -11,6 +15,7 @@ import service.AlbumService;
 import javafx.scene.control.ListView;
 import service.SongService;
 
+import java.awt.event.ActionEvent;
 import java.util.List;
 
 public class ArtistMainPageController {
@@ -65,6 +70,22 @@ public class ArtistMainPageController {
 
     @FXML
     private VBox songDetails;
+
+    @FXML
+    private void onLogOut(javafx.event.ActionEvent event) {
+        try{
+            this.current_artist = null;
+            this.current_album = null;
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainPage.fxml"));
+            Parent newRoot = loader.load();
+            Scene current_scene = ((Node) event.getSource()).getScene();
+
+            current_scene.setRoot(newRoot);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void onDeleteAlbum() {

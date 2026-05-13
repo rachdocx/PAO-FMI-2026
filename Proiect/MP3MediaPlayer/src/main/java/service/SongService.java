@@ -16,9 +16,10 @@ public class SongService {
 
     private EntityManager em;
 
-    public SongService(EntityManager em){
+    public SongService(EntityManager em) {
         this.em = em;
     }
+
     public void deleteSong(String song_title, int id_artist) {
         try {
             em.getTransaction().begin();
@@ -27,6 +28,13 @@ public class SongService {
             query.setParameter("file_name", song_title);
             query.setParameter("id_artist", id_artist);
             Song song = query.getSingleResult();
+
+            // Ștergem manual legăturile din playlist-uri folosind un Native Query
+            // pentru a evita eroarea de Foreign Key Constraint din baza de date
+            em.createNativeQuery("DELETE FROM playlist_songs WHERE song_id = :songId")
+                    .setParameter("songId", song.getId())
+                    .executeUpdate();
+
             em.remove(song);
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -36,18 +44,20 @@ public class SongService {
         }
     }
 
-    public void removeSongFromAlbum(String song_title, int id_artist){
-        try{
+    public void removeSongFromAlbum(String song_title, int id_artist) {
+        try {
             em.getTransaction().begin();
-            TypedQuery<Song> query = em.createQuery("SELECT s FROM Song s WHERE s.artist.id = :id_artist and s.file_name = :file_name", Song.class);
-            //ciudat mod de a retine datele, probleme daca exista doua piese cu aceleasi nume ale aceluias artist dar putin probabil
+            TypedQuery<Song> query = em.createQuery(
+                    "SELECT s FROM Song s WHERE s.artist.id = :id_artist and s.file_name = :file_name", Song.class);
+            // ciudat mod de a retine datele, probleme daca exista doua piese cu aceleasi
+            // nume ale aceluias artist dar putin probabil
             query.setParameter("id_artist", id_artist);
             query.setParameter("file_name", song_title);
             Song song = query.getSingleResult();
             song.setAlbum(null);
             em.merge(song);
             em.getTransaction().commit();
-        }catch (Exception e) {
+        } catch (Exception e) {
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
             e.printStackTrace();
@@ -77,9 +87,11 @@ public class SongService {
     }
 
     public List<Song> searchSongByName(String name) {
-        TypedQuery<Song> query = em.createQuery("SELECT s FROM Song s WHERE lower(s.file_name) LIKE lower(:name) ",
-                Song.class);
-        query.setParameter("name", name);
+        // Căutare tip "începe cu" - adăugăm '%' la final
+        String formattedSearch = name + "%";
+        TypedQuery<Song> query = em.createQuery(
+                "SELECT s FROM Song s WHERE lower(s.file_name) LIKE lower(:name) ", Song.class);
+        query.setParameter("name", formattedSearch);
         return query.getResultList();
     }
 

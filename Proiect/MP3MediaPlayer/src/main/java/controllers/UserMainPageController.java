@@ -3,16 +3,24 @@ package controllers;
 import app.MainFX;
 import jakarta.persistence.EntityManager;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import models.Advertisement;
+import models.AudioFile;
 import models.Song;
 import models.User;
 import service.AdvertisementService;
+import service.AudioFileService;
 import service.PlaylistService;
 import service.SongService;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,9 +28,13 @@ import java.util.Objects;
 public class UserMainPageController {
     private User current_user;
 
-    //TODO de facut logica pentru diferite subscriptii ce poate face un user DONE
-    //TODO de facut logica si pentru delete doar pentru add
+    //done de facut logica pentru diferite subscriptii ce poate face un user DONE nu chiar ca da reclame doar in playlist if im not sure
+    //done de facut logica si pentru delete doar pentru add
     //TODO de bagat alta metoda care afiseaza frumos cate secunde are piesa/album/artist/an_apartie_album
+    //TODO de facut user profile unde iti pune poza/schimbat abonament
+    //TODO DE ADAUGAT BUTOANE DE BACK SI LOGOUT CA E OBNOXIUS RAU SA TREBUIASCA SA OPRESC APLICATIA BFFR
+    //done DE FACUT UN SEARCH ENGINE CARE SA NU FIE ENERVANT
+
 
     @FXML
     private ListView<String> playlistView;
@@ -38,7 +50,8 @@ public class UserMainPageController {
     private Label currentAudioLabel;
     @FXML
     private Label selectedSongLabel;
-
+    @FXML
+    private Label currentAdLabel;
 
     @FXML
     private TextField search_field;
@@ -72,6 +85,7 @@ public class UserMainPageController {
     private List<Advertisement> session_ads = new ArrayList<>();
     private List<String> currentPlaylistUrls = new ArrayList<>();
     private List<String> getCurrentPlaylistSongNames = new ArrayList<>();
+    private List<Integer> currnetPlaylistSongIds = new ArrayList<>();
     private int currentSongIndex;
 
     private List<Song> search_res;
@@ -81,9 +95,30 @@ public class UserMainPageController {
     private long hour = System.currentTimeMillis();
     private int ad_index = 0;
     private String selected_playlist;
+    private int current_song_id;
 
     @FXML
-    public void onDeletePlaylist(){
+    private void onLogOut(javafx.event.ActionEvent event) {
+        try{
+
+            this.current_user= null;
+            if(mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer = null;
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainPage.fxml"));
+            Parent newRoot = loader.load();
+            Scene current_scene = ((Node) event.getSource()).getScene();
+
+            current_scene.setRoot(newRoot);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onDeletePlaylist(){
         EntityManager em = null;
         try{
             em = MainFX.getEmf().createEntityManager();
@@ -119,6 +154,7 @@ public class UserMainPageController {
             for(Song s : songs){
                 currentPlaylistUrls.add(s.getStream_url());
                 getCurrentPlaylistSongNames.add(s.getFile_name());
+                currnetPlaylistSongIds.add(s.getId());
             }
 
             currentSongIndex = 0;
@@ -197,6 +233,9 @@ public class UserMainPageController {
         currentAudioLabel.setText(getCurrentPlaylistSongNames.get(currentSongIndex));
 
         try {
+            EntityManager em = MainFX.getEmf().createEntityManager();
+            AudioFileService audioFileService = new AudioFileService(em);
+            audioFileService.incStreamCount(currnetPlaylistSongIds.get(currentSongIndex));
             Media media = new Media(currentStreamUrl);
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.play();
@@ -255,21 +294,47 @@ public class UserMainPageController {
                 isPlaying = true;
             }
         } else {
-            try {
-                Media media = new Media(currentStreamUrl);
-                mediaPlayer = new MediaPlayer(media);
-                mediaPlayer.play();
-
-                playButton.setText("⏸ Pause");
-                isPlaying = true;
-
-                mediaPlayer.setOnEndOfMedia(() -> {
-                    playButton.setText("▶ Play");
-                    isPlaying = false;
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
+            if(reachedHourLimit()){
+                currentAudioLabel.setText("Reached hourly tracks limit for the Free Subscription");
+                return;
             }
+
+            if(shouldPlayAd()){
+                playAd(() -> {
+                    songs_played_hour++;
+                    songs_played_session++;
+                    playSingleSong();
+                });
+                return;
+            }
+
+            songs_played_hour++;
+            songs_played_session++;
+            playSingleSong();
+        }
+    }
+
+    private void playSingleSong() {
+        try {
+            EntityManager em = MainFX.getEmf().createEntityManager();
+            AudioFileService audioFileService = new AudioFileService(em);
+            audioFileService.incStreamCount(current_song_id);
+
+            Media media = new Media(currentStreamUrl);
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.play();
+
+            playButton.setText("⏸ Pause");
+            isPlaying = true;
+
+            mediaPlayer.setOnEndOfMedia(() -> {
+                playButton.setText("▶ Play");
+                isPlaying = false;
+                mediaPlayer.stop();
+                mediaPlayer = null;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -308,6 +373,7 @@ public class UserMainPageController {
 
                     if(!songs.isEmpty()){
                         currentStreamUrl = songs.get(0).getStream_url();
+                        current_song_id = songs.get(0).getId();
                         if(mediaPlayer != null){
                             mediaPlayer.stop();
                             mediaPlayer = null;
@@ -345,6 +411,8 @@ public class UserMainPageController {
 
                     if(!songs.isEmpty()){
                         currentStreamUrl = songs.get(0).getStream_url();
+                        current_song_id = songs.get(0).getId();
+
                         if(mediaPlayer != null){
                             mediaPlayer.stop();
                             mediaPlayer = null;
@@ -489,18 +557,18 @@ public class UserMainPageController {
     private boolean shouldPlayAd(){
         String sub = this.current_user.getSubscription().getName();
 
-        if(sub.equals("Premium Plus")){
+        if(sub.equals("Premium Plus") || sub.equals("Premium PLUS")){
             return false;
         }
         if(sub.equals("Free")){
-            if(songs_played_session > 0 && songs_played_session % 3 ==0){
+            if(songs_played_session > 0 && songs_played_session % 5 == 0){
                 return true;
             }
             else
                 return false;
         }
         if(sub.equals("Premium")){
-            if(songs_played_session > 0 && songs_played_session % 10 ==0){
+            if(songs_played_session > 0 && songs_played_session % 10 == 0){
                 return true;
             }
             else
@@ -520,7 +588,7 @@ public class UserMainPageController {
             songs_played_hour = 0;
         }
 
-        return songs_played_session >= 10;
+        return songs_played_hour >= 20;
     }
 
     private void playAd(Runnable afterAd){
@@ -530,9 +598,23 @@ public class UserMainPageController {
         }
 
         Advertisement ad = session_ads.get(ad_index % session_ads.size());
+        int current_ad = ad.getId();
         ad_index++;
 
-        currentAudioLabel.setText("Advertisement: " + ad.getBrand_name());
+        currentAudioLabel.setText("Advertisement: " + ad.getBrand_name() + ": ");
+        currentAdLabel.setText("Go to website!");
+        currentAdLabel.setManaged(true);
+        currentAdLabel.setVisible(true);
+
+        currentAdLabel.setOnMouseClicked(event ->{
+            String url = ad.getBrand_forwarding();
+            try {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            currentAudioLabel.setCursor(javafx.scene.Cursor.HAND);
+        });
 
         if(mediaPlayer != null){
             mediaPlayer.stop();
@@ -540,6 +622,10 @@ public class UserMainPageController {
         }
 
         try{
+            EntityManager em = MainFX.getEmf().createEntityManager();
+            AudioFileService audioFileService = new AudioFileService(em);
+            audioFileService.incStreamCount(current_ad);
+
             Media media = new Media(ad.getStream_url());
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.play();
@@ -550,7 +636,10 @@ public class UserMainPageController {
             mediaPlayer.setOnEndOfMedia(() -> {
                 mediaPlayer.stop();
                 mediaPlayer = null;
+                currentAdLabel.setManaged(false);
+                currentAdLabel.setVisible(false);
                 afterAd.run();
+
             });
         }catch(Exception e){
             e.printStackTrace();

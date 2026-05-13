@@ -10,6 +10,7 @@
     <left>
         <VBox>
             <Label text = "Welcome to Rachify"/>
+            <Button text="Log out" onAction="#onLogOut"/>
             <Label text = "Your Playlists"/>
             <ListView fx:id="playlistView" />
             <Button text="+ Create a new Playlist" onAction="#onAddPlaylistPanelClick"/>
@@ -47,7 +48,7 @@
     <bottom>
         <HBox alignment ="CENTER">
             <Label fx:id = "currentAudioLabel" text = "No selected audio"/>
-
+            <Label fx:id="currentAdLabel" text ="No Ad currently playing" managed="false" visible="false"/>
             <HBox alignment="CENTER">
                 <Button fx:id="skipButton" text="⏮" onAction="#onSkipPrev" visible="false" managed="false"/>
                 <Button fx:id = "playButton" text="▶ Play" onAction="#onPlayClick" style="-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 20;"/>
@@ -55,6 +56,7 @@
             </HBox>
 
             <Label fx:id="currentPlaylistLabel" text = "No playlist selected"/>
+
         </HBox>
     </bottom>
 </BorderPane>

@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "advertisements")
 public class Advertisement extends AudioFile{
+
     @Column(nullable = false)
     String brand_name;
 
