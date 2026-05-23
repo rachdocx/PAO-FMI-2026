@@ -48,7 +48,11 @@ public class PlaylistService {
             for (var song : playlist.getTracklist()) {
                 int minutes = song.getDuration_seconds() / 60;
                 int seconds = song.getDuration_seconds() % 60;
-                String duration = String.valueOf(minutes) + ":" + String.valueOf(seconds);
+                String duration = String.valueOf(minutes) + ":";
+                if(seconds >= 0 && seconds <= 9)
+                    duration += "0" + String.valueOf(seconds);
+                else
+                    duration += String.valueOf(seconds);
                 trackNames.add(song.getFile_name() + "   |   " + song.getArtist().getScene_name() + "   |   " + duration + "   |   " + song.getGenre());
             }
 
