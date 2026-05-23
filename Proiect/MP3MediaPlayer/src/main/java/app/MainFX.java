@@ -12,7 +12,6 @@ public class MainFX extends Application {
 
     public static EntityManagerFactory emf;
     public static EntityManager em;
-
     public static EntityManagerFactory getEmf() {
         return emf;
     }
@@ -22,8 +21,6 @@ public class MainFX extends Application {
 
         emf = Persistence.createEntityManagerFactory("spotify-pu");
         em = emf.createEntityManager();
-
-        // Seed advertisements at startup
         EntityManager seedEm = emf.createEntityManager();
         try {
             new service.AdvertisementService(seedEm).seedAds();

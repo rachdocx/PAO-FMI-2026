@@ -8,9 +8,10 @@ import models.Artist;
 import models.Playlist;
 import models.Subscription;
 import models.User;
-
+import exceptions.AuthenticationException;
+import exceptions.DatabaseOperationException;
+import exceptions.ResourceNotFoundException;
 import java.util.List;
-import java.util.Objects;
 
 public class UserService {
 
@@ -22,17 +23,14 @@ public class UserService {
     }
     public Artist signInArtist(String email, String password) {
         try {
-            TypedQuery<Artist> query = em.createQuery(
-                    "SELECT a FROM Artist a WHERE a.email = :email AND a.password = :password", Artist.class
-            );
+            TypedQuery<Artist> query = em.createQuery("SELECT a FROM Artist a WHERE a.email = :email AND a.password = :password", Artist.class);
             query.setParameter("email", email);
             query.setParameter("password", password);
             return query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
+            throw new AuthenticationException("Artist invalid email or password.");
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error during artist sign in", e);
         }
     }
 
@@ -50,7 +48,7 @@ public class UserService {
         }catch (Exception e){
             if(em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error signing up artist", e);
         }
     }
 
@@ -68,7 +66,7 @@ public class UserService {
             if(em.getTransaction().isActive()){
                 em.getTransaction().rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error signing up user", e);
         }
     }
 
@@ -86,7 +84,7 @@ public class UserService {
             if(em.getTransaction().isActive()){
                 em.getTransaction().rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error signing up free user", e);
         }
     }
 
@@ -99,20 +97,21 @@ public class UserService {
 
 
         } catch (NoResultException e) {
-            return null;
+            throw new AuthenticationException("Invalid email or password.");
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error during user sign in", e);
         }
     }
 
     public User getUserById(int id){
         try{
             User user = em.find(User.class, id);
+            if (user == null) {
+                throw new ResourceNotFoundException("User not found with id: " + id);
+            }
             return user;
         }catch(Exception e){
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error fetching user", e);
         }
     }
 
@@ -134,7 +133,7 @@ public class UserService {
             System.out.println("Utilizatorul cu ID " + userId + " a fost șters.");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error deleting user", e);
         }
     }
 

@@ -1,12 +1,14 @@
 package service;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
-import models.*;
+import models.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.NoResultException;
+import exceptions.DatabaseOperationException;
+import exceptions.ResourceNotFoundException;
 public class SubscriptionService {
     private EntityManager em;
 
@@ -25,17 +27,17 @@ public class SubscriptionService {
             if(em.getTransaction().isActive()){
                 em.getTransaction().rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error creating subscription", e);
         }
     }
 
     public Subscription getSubscriptionById(int id){
         try{
             Subscription sub = em.find(Subscription.class, id);
+            if (sub == null) throw new ResourceNotFoundException("Subscription not found");
             return sub;
         }catch(Exception e){
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error fetching subscription", e);
         }
     }
 
@@ -63,7 +65,7 @@ public class SubscriptionService {
             if(em.getTransaction().isActive()){
                 em.getTransaction().rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error deleting subscription", e);
         }
     }
 
@@ -76,8 +78,10 @@ public class SubscriptionService {
 
             if (subscription != null)
                 return subscription;
+        } catch (NoResultException e) {
+            throw new ResourceNotFoundException("Subscription not found by name");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error fetching subscription by name", e);
         }
         return null;
     }

@@ -2,15 +2,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.MainPageController">
+<VBox alignment="CENTER" spacing="30.0" stylesheets="@../css/style.css" styleClass="main-content" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.MainPageController">
 
-    <Label text="Welcome to Rachify" />
+    <Label text="Welcome to Rachify" styleClass="header-label" />
 
-    <VBox alignment="CENTER" spacing="10.0">
+    <VBox alignment="CENTER" spacing="20.0" maxWidth="300">
 
-        <Button fx:id="signInButton" text="Sign In" onAction="#handleSignIn" />
+        <Button fx:id="signInButton" text="Sign In" onAction="#handleSignIn" styleClass="btn, btn-primary" maxWidth="Infinity" />
 
-        <Button fx:id="signUpButton" text="Sign Up" onAction="#handleSignUp" />
+        <Button fx:id="signUpButton" text="Sign Up" onAction="#handleSignUp" styleClass="btn" maxWidth="Infinity" />
 
     </VBox>
 </VBox>

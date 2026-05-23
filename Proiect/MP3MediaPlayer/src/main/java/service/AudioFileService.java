@@ -1,20 +1,25 @@
 package service;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.TypedQuery;
-
+import javafx.scene.media.MediaPlayer;
 import models.*;
-public class AudioFileService {
-    private EntityManager em;
+import exceptions.DatabaseOperationException;
+
+public abstract class AudioFileService {
+    protected EntityManager em;
 
     public AudioFileService(EntityManager em){
         this.em = em;
     }
 
     public void addAudioFile(String file_name, int duration_seconds, String stream_url, int stream_count){
-
     }
+
+    public abstract MediaPlayer preparePlayer(AudioFile file, Runnable onFinish);
+    public abstract boolean isSkippable();
+    public abstract String getDisplayMessage(AudioFile file);
+    public abstract void handleSkipNext(MediaPlayer player, Runnable playNextInQueue);
+    public abstract void handleSkipPrev(MediaPlayer player, Runnable playPrevInQueue);
 
     public void incStreamCount(int id){
         try{
@@ -26,7 +31,7 @@ public class AudioFileService {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error incrementing stream count", e);
         } finally {
             em.close();
         }

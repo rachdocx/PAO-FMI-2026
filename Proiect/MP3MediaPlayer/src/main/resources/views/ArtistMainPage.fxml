@@ -1,61 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ArtistMainPageController">
+<BorderPane stylesheets="@../css/style.css" styleClass="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ArtistMainPageController">
     <left>
-        <VBox>
-            <Label text="Welcome to Rachify"/>
-            <Button text="Log out" onAction="#onLogOut"/>
-            <Label text="Your Albums"/>
-            <ListView fx:id="albumView" />
-            <Button text="+ Create album" onAction="#onAddAlbumPanelClick"/>
-
-            <VBox fx:id="addAlbumPanel" visible="false" managed="false">
-                <TextField fx:id="release_yearField" promptText="Release Year"/>
-                <TextField fx:id="albumTitleField" promptText="Album's title"/>
-                <Button text="Save album" onAction="#onAddAlbumClick"/>
+        <VBox styleClass="sidebar" prefWidth="250">
+            <Label text="Welcome back," styleClass="sub-header-label"/>
+            <Label fx:id="welcomeArtist" text="N/A" styleClass="header-label"/>
+            <Button text="Log out" onAction="#onLogOut" styleClass="btn"/>
+            
+            <Separator style="-fx-background-color: #282828; -fx-padding: 10px 0;"/>
+            
+            <Label text="Your Albums" styleClass="sub-header-label"/>
+            <ListView fx:id="albumView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            <Button text="+ Create album" onAction="#onAddAlbumPanelClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
+            
+            <VBox fx:id="addAlbumPanel" visible="false" managed="false" spacing="10">
+                <TextField fx:id="release_yearField" promptText="Release Year" styleClass="text-field"/>
+                <TextField fx:id="albumTitleField" promptText="Album's title" styleClass="text-field"/>
+                <Button text="Save album" onAction="#onAddAlbumClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
             </VBox>
             
-            <Button fx:id="deleteAlbumButton" text="Delete this album" onAction="#onDeleteAlbum" visible="false" managed="false"/>
+            <Button fx:id="deleteAlbumButton" text="Delete this album" onAction="#onDeleteAlbum" styleClass="btn" visible="false" managed="false" maxWidth="Infinity"/>
         </VBox>
     </left>
     
     <center>
-        <VBox fx:id="AlbumSongs" visible="false" managed="false">
-            <!-- sa fac sa apara numele albumului TODO -->
-            <Label text="Selected Album's songs"/>
-            <ListView fx:id="songAlbumView"/>
-            <Button fx:id="removeFromAlbumButton" text="Remove from album" onAction="#onRemoveFromAlbum" visible="false" managed="false"/>
+        <VBox fx:id="AlbumSongs" visible="false" managed="false" styleClass="main-content">
+            <Label text="Selected Album's songs" styleClass="header-label"/>
+            <ListView fx:id="songAlbumView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            <Button fx:id="removeFromAlbumButton" text="Remove from album" onAction="#onRemoveFromAlbum" styleClass="btn" visible="false" managed="false"/>
         </VBox>
     </center>
     
     <right>
-        <VBox>
-            <Label text="Your Songs"/>
-            <ListView fx:id="songView" />
-            <Button text="+ Add Song" onAction="#onAddSongPanelClick"/>
+        <VBox styleClass="sidebar" prefWidth="300">
+            <Label text="Your Songs" styleClass="header-label"/>
+            <ListView fx:id="songView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            <Button text="+ Add Song" onAction="#onAddSongPanelClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
             
-            <VBox fx:id="addSongPanel" visible="false" managed="false">
-                <TextField fx:id="titleField" promptText="Song title"/>
-                <TextField fx:id="genreField" promptText="Genre"/>
-                <TextField fx:id="durationField" promptText="Duration"/>
-                <TextField fx:id="urlField" promptText="Stream URL"/>
-                <Button text="Save song" onAction="#onAddSongClick"/>
+            <VBox fx:id="addSongPanel" visible="false" managed="false" spacing="10">
+                <TextField fx:id="titleField" promptText="Song title" styleClass="text-field"/>
+                <TextField fx:id="genreField" promptText="Genre" styleClass="text-field"/>
+                <TextField fx:id="durationField" promptText="Duration" styleClass="text-field"/>
+                <TextField fx:id="urlField" promptText="Stream URL" styleClass="text-field"/>
+                <Button text="Save song" onAction="#onAddSongClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
             </VBox>
             
-            <VBox fx:id="songDetails" visible="false" managed="false">
-                <VBox fx:id="assignAlbumPanel" visible="false" managed="false">
-                    <Label fx:id="selectedSongLabel" text="Selected song"/>
-                    <ComboBox fx:id="albumSelectionBox" promptText="Select an album"/>
-                    <Button text="Add to album" onAction="#onAssignToAlbumClick"/>
+            <VBox fx:id="songDetails" visible="false" managed="false" spacing="10">
+                <VBox fx:id="assignAlbumPanel" visible="false" managed="false" spacing="10">
+                    <Label fx:id="selectedSongLabel" text="Selected song" styleClass="label"/>
+                    <ComboBox fx:id="albumSelectionBox" promptText="Select an album" styleClass="combo-box" maxWidth="Infinity"/>
+                    <Button text="Add to album" onAction="#onAssignToAlbumClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
                 </VBox>
                 
-                <Button fx:id="deleteSongButton" text="Delete song" onAction="#onDeleteSong" visible="false" managed="false"/>
+                <Button fx:id="deleteSongButton" text="Delete song" onAction="#onDeleteSong" styleClass="btn" visible="false" managed="false" maxWidth="Infinity"/>
             </VBox>
         </VBox>
     </right>

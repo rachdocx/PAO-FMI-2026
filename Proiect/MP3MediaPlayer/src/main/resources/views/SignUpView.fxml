@@ -5,24 +5,31 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<VBox alignment="CENTER" spacing="15.0" stylesheets="@../css/style.css" styleClass="main-content" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="controllers.SignUpController">
+    <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/></padding>
 
-    <Label text="Create Rachify Account" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <Label text="Create Rachify Account" styleClass="header-label"/>
 
-    <TextField fx:id="usernameField" promptText="Username"/>
-    <TextField fx:id="emailField" promptText="Email"/>
-    <PasswordField fx:id="passwordField" promptText="Parola"/>
+    <VBox spacing="10.0" maxWidth="350" alignment="CENTER">
+        <TextField fx:id="usernameField" promptText="Username" styleClass="text-field"/>
+        <TextField fx:id="emailField" promptText="Email" styleClass="text-field"/>
+        <PasswordField fx:id="passwordField" promptText="Password" styleClass="password-field"/>
 
-    <CheckBox fx:id="artistCheckBox" text="Register as Artist" onAction="#onArtistCheckBoxClick"/>
-    <CheckBox fx:id="userCheckBox" text="Register as User" onAction="#onUserCheckBoxClick"/>
+        <HBox spacing="15.0" alignment="CENTER">
+            <CheckBox fx:id="artistCheckBox" text="Register as Artist" onAction="#onArtistCheckBoxClick" styleClass="label"/>
+            <CheckBox fx:id="userCheckBox" text="Register as User" onAction="#onUserCheckBoxClick" styleClass="label"/>
+        </HBox>
 
-    <TextField fx:id="sceneNameField" promptText="Stage Name" visible="false" managed="false"/>
+        <TextField fx:id="sceneNameField" promptText="Stage Name" visible="false" managed="false" styleClass="text-field"/>
 
-    <Label fx:id="userSubscriptionLabel" text="Choose your subscription" visible="false" managed="false"/>
-    <ListView fx:id="subscriptionList" visible="false" managed="false"/>
+        <Label fx:id="userSubscriptionLabel" text="Choose your subscription" visible="false" managed="false" styleClass="sub-header-label"/>
+        <ListView fx:id="subscriptionList" visible="false" managed="false" styleClass="list-view" maxHeight="150"/>
 
-    <Button text="Sign Up" onAction="#onSignUpClick" style="-fx-background-color: #1DB954; -fx-text-fill: white;"/>
-    <Label fx:id="mesajStatus" textFill="red"/>
+        <Button text="Sign Up" onAction="#onSignUpClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
+        <Button text="Back" onAction="#onBackClick" styleClass="btn" maxWidth="Infinity"/>
+        <Label fx:id="mesajStatus" styleClass="label" style="-fx-text-fill: red;"/>
+    </VBox>
 </VBox>

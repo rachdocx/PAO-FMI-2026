@@ -1,62 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.UserMainPageController">
+<BorderPane stylesheets="@../css/style.css" styleClass="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.UserMainPageController">
     <left>
-        <VBox>
-            <Label text = "Welcome to Rachify"/>
-            <Button text="Log out" onAction="#onLogOut"/>
-            <Label text = "Your Playlists"/>
-            <ListView fx:id="playlistView" />
-            <Button text="+ Create a new Playlist" onAction="#onAddPlaylistPanelClick"/>
+        <VBox styleClass="sidebar" prefWidth="250">
+            <Label text="Welcome back," styleClass="sub-header-label"/>
+            <Label fx:id="welcomeUser" text="N/A" styleClass="header-label"/>
+            <Button text="Log out" onAction="#onLogOut" styleClass="btn"/>
+            
+            <Separator style="-fx-background-color: #282828; -fx-padding: 10px 0;"/>
+            
+            <Label text="Your Playlists" styleClass="sub-header-label"/>
+            <ListView fx:id="playlistView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            <Button text="+ Create a new Playlist" onAction="#onAddPlaylistPanelClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
+            
+            <Button fx:id="editPlaylistButton" onAction="#onEditPlaylist" text="Edit this playlist" styleClass="btn" visible="false" managed="false" maxWidth="Infinity"/>
+            <VBox fx:id="editPlaylistPanel" visible="false" managed="false" spacing="10">
+                <TextField fx:id="editPlaylistName" promptText="Playlist name" styleClass="text-field"/>
+                <Button text="Save Playlist" onAction="#onEditPlaylistClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
+            </VBox>
 
-            <VBox fx:id="addPlaylistPanel" visible="false" managed="false">
-                <TextField fx:id="playlist_nameField" promptText="Insert album name"/>
-                <Button text="Save Playlist" onAction="#onAddPlaylistClick"/>
+            <VBox fx:id="addPlaylistPanel" visible="false" managed="false" spacing="10">
+                <TextField fx:id="playlist_nameField" promptText="Playlist name" styleClass="text-field"/>
+                <Button text="Save Playlist" onAction="#onAddPlaylistClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
             </VBox>
         </VBox>
-
     </left>
+    
     <center>
-        <VBox fx:id="PlaylistSongs" visible="false" managed="false">
-            <Label text = "Selected Playlist's songs"/>
-            <ListView fx:id="songPlaylistView"/>
-            <Button text="Play this Playlist" onAction="#onPlayPlaylist"/>
-            <Button text="Delete this playlist" onAction="#onDeletePlaylist"/>
+        <VBox fx:id="PlaylistSongs" visible="false" managed="false" styleClass="main-content">
+            <Label text="Selected Playlist's songs" styleClass="header-label"/>
+            <ListView fx:id="songPlaylistView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="10">
+                <Button text="Play this Playlist" onAction="#onPlayPlaylist" styleClass="btn, btn-primary"/>
+                <Button text="Delete this playlist" onAction="#onDeletePlaylist" styleClass="btn"/>
+            </HBox>
         </VBox>
     </center>
+    
     <right>
-        <VBox>
-            <HBox>
-                <TextField fx:id="search_field" promptText="Search..."/>
-                <Button text="Search" onAction="#onSearchClick"/>
+        <VBox styleClass="sidebar" prefWidth="300">
+            <Label text="Search" styleClass="header-label"/>
+            <HBox spacing="10">
+                <TextField fx:id="search_field" promptText="Search..." styleClass="text-field" HBox.hgrow="ALWAYS"/>
+                <Button text="Go!" onAction="#onSearchClick" styleClass="btn, btn-primary"/>
             </HBox>
-            <ListView fx:id = "search_results"/>
-            <VBox fx:id="assignPlaylistPanel" visible="false" managed="false">
-                <Label fx:id="selectedSongLabel" text="Selected song"/>
-                <ComboBox fx:id="playlistSelectionBox" promptText="Select a playlist"/>
-                <Button text="Add to playlist" onAction="#onAssignToPlaylistClick"/>
+            <ListView fx:id="search_results" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            <VBox fx:id="assignPlaylistPanel" visible="false" managed="false" spacing="10">
+                <Label fx:id="selectedSongLabel" text="Selected song" styleClass="label"/>
+                <ComboBox fx:id="playlistSelectionBox" promptText="Select a playlist" styleClass="combo-box" maxWidth="Infinity"/>
+                <Button text="Add to playlist" onAction="#onAssignToPlaylistClick" styleClass="btn, btn-primary" maxWidth="Infinity"/>
             </VBox>
-
         </VBox>
     </right>
+    
     <bottom>
-        <HBox alignment ="CENTER">
-            <Label fx:id = "currentAudioLabel" text = "No selected audio"/>
-            <Label fx:id="currentAdLabel" text ="No Ad currently playing" managed="false" visible="false"/>
-            <HBox alignment="CENTER">
-                <Button fx:id="skipButton" text="⏮" onAction="#onSkipPrev" visible="false" managed="false"/>
-                <Button fx:id = "playButton" text="▶ Play" onAction="#onPlayClick" style="-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 20;"/>
-                <Button fx:id="prevButton" text="⏭" onAction="#onSkipNext" visible="false" managed="false"/>
-            </HBox>
-
-            <Label fx:id="currentPlaylistLabel" text = "No playlist selected"/>
-
-        </HBox>
+        <BorderPane styleClass="player-bar">
+            <left>
+                <VBox alignment="CENTER_LEFT" prefWidth="250" minWidth="250" maxWidth="250">
+                    <Label fx:id="currentAudioLabel" text="No selected audio" styleClass="label" style="-fx-font-weight: bold;" />
+                    <Label fx:id="currentAdLabel" text="No Ad currently playing" styleClass="label" style="-fx-text-fill: #B3B3B3;" managed="false" visible="false"/>
+                </VBox>
+            </left>
+            <center>
+                <HBox alignment="CENTER" spacing="15">
+                    <Button fx:id="skipButton" text="⏮" onAction="#onSkipPrev" styleClass="btn" style="-fx-font-size: 16px;" visible="false" managed="false"/>
+                    <Button fx:id="playButton" text="▶" onAction="#onPlayClick" styleClass="btn, btn-primary" style="-fx-font-size: 20px; -fx-padding: 10px 25px;"/>
+                    <Button fx:id="prevButton" text="⏭" onAction="#onSkipNext" styleClass="btn" style="-fx-font-size: 16px;" visible="false" managed="false"/>
+                </HBox>
+            </center>
+            <right>
+                <VBox alignment="CENTER_RIGHT" prefWidth="250" minWidth="250" maxWidth="250">
+                    <Label fx:id="currentPlaylistLabel" text="No playlist selected" styleClass="label" style="-fx-text-fill: #B3B3B3;"/>
+                </VBox>
+            </right>
+        </BorderPane>
     </bottom>
 </BorderPane>

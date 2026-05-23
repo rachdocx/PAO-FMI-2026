@@ -9,6 +9,8 @@ import models.Song;
 
 import java.util.ArrayList;
 import java.util.List;
+import exceptions.DatabaseOperationException;
+import exceptions.ResourceNotFoundException;
 
 public class AlbumService {
     private EntityManager em;
@@ -26,12 +28,13 @@ public class AlbumService {
 
             List<String> tracks = new ArrayList<>();
             for (Song s : album.getTracklist()) {
-                tracks.add(s.getFile_name());
+                tracks.add(s.getFile_name() + "   |    Plays: " + s.getStream_count());
             }
             return tracks;
+        } catch (NoResultException e) {
+            throw new ResourceNotFoundException("Album not found");
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+            throw new DatabaseOperationException("Error fetching album tracks", e);
         }
     }
 
@@ -49,7 +52,7 @@ public class AlbumService {
         }catch (Exception e) {
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error deleting album", e);
         }
     }
 
@@ -63,7 +66,7 @@ public class AlbumService {
         } catch (Exception e) {
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error adding album", e);
         }
     }
 
@@ -82,10 +85,9 @@ public class AlbumService {
             }
             return al_string;
         } catch (NoResultException e) {
-            return null;
+            throw new ResourceNotFoundException("No albums found for artist");
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error fetching artist albums", e);
         }
 
         // TODO: DE FACUT FINALLY CU INCHIS LA BAZA DE DATE
@@ -111,7 +113,7 @@ public class AlbumService {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error assigning song to album", e);
         }
     }
 

@@ -1,6 +1,10 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import app.MainFX;
 import models.Subscription;
@@ -13,6 +17,8 @@ import utils.SceneChanger;
 import javafx.event.ActionEvent;
 
 import java.util.List;
+import exceptions.DatabaseOperationException;
+import exceptions.ResourceNotFoundException;
 
 public class SignUpController {
 
@@ -89,10 +95,19 @@ public class SignUpController {
             }
             mesajStatus.setStyle("-fx-text-fill: green;");
             mesajStatus.setText("Account successfully created");
+
             usernameField.clear();
             emailField.clear();
             passwordField.clear();
             SceneChanger.changeScene(event, "/views/SignInView.fxml");
+        } catch (DatabaseOperationException e) {
+            e.printStackTrace();
+            mesajStatus.setStyle("-fx-text-fill: red;");
+            mesajStatus.setText("A database error occurred during sign-up.");
+        } catch (ResourceNotFoundException e) {
+            e.printStackTrace();
+            mesajStatus.setStyle("-fx-text-fill: red;");
+            mesajStatus.setText("Subscription plan not found.");
         } catch (Exception e) {
             e.printStackTrace();
             mesajStatus.setStyle("-fx-text-fill: red;");
@@ -114,11 +129,23 @@ public class SignUpController {
             if(subs != null){
                 subscriptionList.getItems().setAll(subs);
             }
-        }catch(Exception e){
+        }catch(DatabaseOperationException e){
             e.printStackTrace();
         }finally {
             if(em != null && em.isOpen())
                 em.close();
+        }
+    }
+
+    @FXML
+    private void onBackClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainPage.fxml"));
+            Parent newRoot = loader.load();
+            Scene current_scene = ((Node) event.getSource()).getScene();
+            current_scene.setRoot(newRoot);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

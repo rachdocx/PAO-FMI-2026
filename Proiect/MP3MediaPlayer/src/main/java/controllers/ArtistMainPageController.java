@@ -11,18 +11,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import models.Artist;
 import service.AlbumService;
-
 import javafx.scene.control.ListView;
 import service.SongService;
-
-import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Set;
+import exceptions.DatabaseOperationException;
+import exceptions.ResourceNotFoundException;
 
 public class ArtistMainPageController {
     private Artist current_artist;
     private String current_album;
 
-    // TODO de facut logica si pentru delete doar pentru add
+    // done de facut logica si pentru delete doar pentru add
 
     @FXML
     private ListView<String> albumView;
@@ -32,6 +32,9 @@ public class ArtistMainPageController {
     private ListView<String> songAlbumView;
 
     @FXML
+    private Label welcomeArtist;
+
+    @FXML
     private VBox assignAlbumPanel;
     @FXML
     private VBox AlbumSongs;
@@ -39,6 +42,8 @@ public class ArtistMainPageController {
     private VBox addSongPanel;
     @FXML
     private VBox addAlbumPanel;
+    @FXML
+    private VBox songDetails;
 
     @FXML
     private TextField titleField;
@@ -68,9 +73,60 @@ public class ArtistMainPageController {
     @FXML
     private Button removeFromAlbumButton;
 
-    @FXML
-    private VBox songDetails;
+    public void setArtist(Artist artist) {
+        this.current_artist = artist;
 
+        welcomeArtist.setText(this.current_artist.getUsername());
+        loadArtistSongs();
+        loadArtistAlbums();
+
+        albumView.setOnMouseClicked(event -> {
+            String selectedTitle = albumView.getSelectionModel().getSelectedItem();
+
+            if (selectedTitle != null) {
+                loadAlbumTracks(selectedTitle);
+                current_album = selectedTitle;
+
+                deleteAlbumButton.setVisible(true);
+                deleteAlbumButton.setManaged(true);
+
+                songDetails.setVisible(false);
+                songDetails.setManaged(false);
+            }
+        });
+
+        songAlbumView.setOnMouseClicked(event -> {
+            String selectedSong = songAlbumView.getSelectionModel().getSelectedItem();
+
+            if(selectedSong != null){
+                removeFromAlbumButton.setVisible(true);
+                removeFromAlbumButton.setManaged(true);
+
+                songDetails.setVisible(false);
+                songDetails.setManaged(false);
+            }
+        });
+
+        songView.setOnMouseClicked(event -> {
+            String selectedSongFormatted = songView.getSelectionModel().getSelectedItem();
+            if (selectedSongFormatted != null) {
+                String actualSongName = selectedSongFormatted.split("   \\|   ")[0].trim();
+                selectedSongLabel.setText(actualSongName);
+
+                songDetails.setVisible(true);
+                songDetails.setManaged(true);
+
+                assignAlbumPanel.setVisible(true);
+                assignAlbumPanel.setManaged(true);
+
+                deleteSongButton.setVisible(true);
+                deleteSongButton.setManaged(true);
+
+                removeFromAlbumButton.setVisible(false);
+                removeFromAlbumButton.setManaged(false);
+            }
+        });
+    }
     @FXML
     private void onLogOut(javafx.event.ActionEvent event) {
         try{
@@ -104,7 +160,7 @@ public class ArtistMainPageController {
 
             loadArtistAlbums();
             loadArtistSongs();
-        } catch (Exception e) {
+        } catch (DatabaseOperationException e) {
             e.printStackTrace();
         } finally {
             if (em != null && em.isOpen())
@@ -114,7 +170,8 @@ public class ArtistMainPageController {
 
     @FXML
     private void onDeleteSong(){
-        String selectedSong = songView.getSelectionModel().getSelectedItem();
+        String selectedSongFormatted = songView.getSelectionModel().getSelectedItem();
+        String selectedSong = selectedSongFormatted != null ? selectedSongFormatted.split("   \\|   ")[0].trim() : null;
         EntityManager em = null;
         try {
             em = MainFX.getEmf().createEntityManager();
@@ -125,13 +182,14 @@ public class ArtistMainPageController {
             deleteSongButton.setManaged(false);
 
             loadArtistSongs();
-        }catch(Exception e){
+        }catch(DatabaseOperationException e){
             e.printStackTrace();
         }finally {
             if(em != null && em.isOpen())
                 em.close();
         }
     }
+
     @FXML
     private void onAssignToAlbumClick() {
         String selectedSong = selectedSongLabel.getText();
@@ -151,7 +209,7 @@ public class ArtistMainPageController {
                 if (selectedAlbum.equals(currentAlbumView)) {
                     loadAlbumTracks(selectedAlbum);
                 }
-            } catch (Exception e) {
+            } catch (DatabaseOperationException e) {
                 e.printStackTrace();
             } finally {
                 if (em != null && em.isOpen())
@@ -196,7 +254,7 @@ public class ArtistMainPageController {
             deleteAlbumButton.setManaged(false);
 
             loadArtistAlbums();
-        } catch (Exception e) {
+        } catch (DatabaseOperationException e) {
             if (em != null && em.isOpen())
                 em.close();
         }
@@ -204,7 +262,8 @@ public class ArtistMainPageController {
 
     @FXML
     private void onRemoveFromAlbum(){
-        String selectedSong = songAlbumView.getSelectionModel().getSelectedItem();
+        String selectedSongFormatted = songAlbumView.getSelectionModel().getSelectedItem();
+        String selectedSong = selectedSongFormatted != null ? selectedSongFormatted.split("   \\|   ")[0].trim() : null;
         EntityManager em = null;
         try{
             em = MainFX.getEmf().createEntityManager();
@@ -215,7 +274,7 @@ public class ArtistMainPageController {
             removeFromAlbumButton.setManaged(false);
 
             loadAlbumTracks(current_album);
-        }catch (Exception e) {
+        }catch (DatabaseOperationException e) {
             if (em != null && em.isOpen())
                 em.close();
         }
@@ -242,61 +301,10 @@ public class ArtistMainPageController {
             addSongPanel.setManaged(false);
 
             loadArtistSongs();
-        } catch (Exception e) {
+        } catch (DatabaseOperationException e) {
             if (em != null && em.isOpen())
                 em.close();
         }
-    }
-
-    public void setArtist(Artist artist) {
-        this.current_artist = artist;
-        loadArtistSongs();
-        loadArtistAlbums();
-
-        albumView.setOnMouseClicked(event -> {
-            String selectedTitle = albumView.getSelectionModel().getSelectedItem();
-            if (selectedTitle != null) {
-                loadAlbumTracks(selectedTitle);
-                current_album = selectedTitle;
-                deleteAlbumButton.setVisible(true);
-                deleteAlbumButton.setManaged(true);
-
-                songDetails.setVisible(false);
-                songDetails.setManaged(false);
-
-
-            }
-        });
-
-        songAlbumView.setOnMouseClicked(event -> {
-            String selectedSong = songAlbumView.getSelectionModel().getSelectedItem();
-            if(selectedSong != null){
-                removeFromAlbumButton.setVisible(true);
-                removeFromAlbumButton.setManaged(true);
-
-                songDetails.setVisible(false);
-                songDetails.setManaged(false);
-            }
-        });
-
-        songView.setOnMouseClicked(event -> {
-            String selectedSong = songView.getSelectionModel().getSelectedItem();
-            if (selectedSong != null) {
-                selectedSongLabel.setText(selectedSong);
-
-                songDetails.setVisible(true);
-                songDetails.setManaged(true);
-
-                assignAlbumPanel.setVisible(true);
-                assignAlbumPanel.setManaged(true);
-
-                deleteSongButton.setVisible(true);
-                deleteSongButton.setManaged(true);
-
-                removeFromAlbumButton.setVisible(false);
-                removeFromAlbumButton.setManaged(false);
-            }
-        });
     }
 
     private void loadAlbumTracks(String selectedTitle) {
@@ -309,26 +317,26 @@ public class ArtistMainPageController {
             AlbumSongs.setVisible(true);
             AlbumSongs.setManaged(true);
             songAlbumView.getItems().setAll(tracks);
-        } catch (Exception e) {
+        } catch (DatabaseOperationException | ResourceNotFoundException e) {
             if (em != null && em.isOpen())
                 em.close();
         }
 
     }
 
-    public List<String> loadArtistSongs() {
+    public Set<String> loadArtistSongs() {
         EntityManager em = null;
 
         try {
             em = MainFX.getEmf().createEntityManager();
             SongService song_service = new SongService(em);
 
-            List<String> songs = song_service.artistSongs(this.current_artist);
+            Set<String> songs = song_service.artistSongs(this.current_artist);
 
             if (songs != null) {
                 songView.getItems().setAll(songs);
             }
-        } catch (Exception e) {
+        } catch (DatabaseOperationException | ResourceNotFoundException e) {
             if (em != null && em.isOpen())
                 em.close();
         }
@@ -349,7 +357,7 @@ public class ArtistMainPageController {
                 albumSelectionBox.getItems().setAll(albums);
             }
 
-        } catch (Exception e) {
+        } catch (DatabaseOperationException | ResourceNotFoundException e) {
             if (em != null && em.isOpen())
                 em.close();
         }

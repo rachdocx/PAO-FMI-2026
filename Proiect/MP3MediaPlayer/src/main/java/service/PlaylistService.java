@@ -8,6 +8,8 @@ import models.Song;
 import models.User;
 import java.util.ArrayList;
 import java.util.List;
+import exceptions.DatabaseOperationException;
+import exceptions.ResourceNotFoundException;
 
 public class PlaylistService {
 
@@ -29,10 +31,10 @@ public class PlaylistService {
         }catch(Exception e){
             if(em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error deleting playlist", e);
         }
     }
-    // metoda ce returneaza melodiile unui playlist ca string-uri
+    // metoda ce returneaza melodiile unui playlist ca string-uri, in ordinea originala
     public List<String> playlistTracks(String playlistTitle, int userId) {
         try {
             TypedQuery<Playlist> query = em.createQuery("SELECT p FROM Playlist p WHERE p.playlist_name = :title AND p.owner.id = :userid", Playlist.class);
@@ -44,15 +46,17 @@ public class PlaylistService {
             List<String> trackNames = new ArrayList<>();
 
             for (var song : playlist.getTracklist()) {
-                trackNames.add(song.getFile_name());
+                int minutes = song.getDuration_seconds() / 60;
+                int seconds = song.getDuration_seconds() % 60;
+                String duration = String.valueOf(minutes) + ":" + String.valueOf(seconds);
+                trackNames.add(song.getFile_name() + "   |   " + song.getArtist().getScene_name() + "   |   " + duration + "   |   " + song.getGenre());
             }
 
             return trackNames;
         } catch (NoResultException e) {
-            return new ArrayList<>();
+            throw new ResourceNotFoundException("Playlist not found");
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error fetching playlist tracks", e);
         }
     }
 
@@ -68,10 +72,9 @@ public class PlaylistService {
 
             return playlist.getTracklist();
         } catch (NoResultException e) {
-            return new ArrayList<>();
+            throw new ResourceNotFoundException("Playlist not found for objects");
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error fetching playlist songs", e);
         }
     }
 
@@ -86,31 +89,10 @@ public class PlaylistService {
         }catch (Exception e) {
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error adding playlist", e);
         }
     }
 
-    //de sters
-//    public void addSongToPlaylist(int playlist_id, int song_id){
-//        try {
-//            em.getTransaction().begin();
-//
-//            Playlist playlist = em.find(Playlist.class, playlist_id);
-//            Song song = em.find(Song.class, song_id);
-//
-//            if (playlist != null && song != null) {
-//                playlist.getTracklist().add(song);
-//                em.merge(playlist);
-//            }
-//        }
-//        catch(Exception e){
-//            if(em.getTransaction().isActive())
-//                em.getTransaction().rollback();
-//            e.printStackTrace();
-//        }
-//    }
-
-    //metoda ce return
     public List<String> userPlaylists(User user) {
         int user_id = user.getId();
 
@@ -120,18 +102,17 @@ public class PlaylistService {
             query.setParameter("id_user", user_id);
 
             List<Playlist> res = query.getResultList();
-            List<String> ps_string = new ArrayList<String>();
+            List<String> ps_string = new ArrayList<>();
             for(var ps : res){
                 ps_string.add(ps.getPlaylist_name());
             }
 
             return ps_string;
         } catch (NoResultException e){
-            return null;
+            throw new ResourceNotFoundException("No playlists found for user");
         }
         catch (Exception e){
-            e.printStackTrace();
-            return null;
+            throw new DatabaseOperationException("Error fetching user playlists", e);
         }
     }
 
@@ -150,8 +131,24 @@ public class PlaylistService {
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            e.printStackTrace();
+            throw new DatabaseOperationException("Error adding song to playlist by name", e);
         }
     }
 
+    public void editPlaylistName(String currentPlaylist, int user_id, String new_name){
+        try{
+            em.getTransaction().begin();
+            TypedQuery<Playlist> query = em.createQuery("SELECT p FROM Playlist p WHERE p.playlist_name = :currentPlaylist AND p.owner.id = :user_id", Playlist.class);
+            query.setParameter("currentPlaylist", currentPlaylist);
+            query.setParameter("user_id", user_id);
+            Playlist playlist = query.getSingleResult();
+            playlist.setPlaylist_name(new_name);
+            //???
+            em.getTransaction().commit();
+        }catch(Exception e){
+            if(em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            throw new DatabaseOperationException("Error editing playlist name", e);
+        }
+    }
 }
