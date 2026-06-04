@@ -9,6 +9,12 @@
             <Label fx:id="welcomeUser" text="N/A" styleClass="header-label"/>
             <Button text="Log out" onAction="#onLogOut" styleClass="btn"/>
             
+            <Button text="Change Subscription" onAction="#onChangeSubscriptionPanelClick" styleClass="btn"/>
+            <VBox fx:id="changeSubscriptionPanel" visible="false" managed="false" spacing="10" style="-fx-padding: 5px 0;">
+                <ComboBox fx:id="subscriptionComboBox" promptText="Select plan" styleClass="combo-box" maxWidth="Infinity"/>
+                <Button text="Confirm Change" onAction="#onConfirmSubscriptionChange" styleClass="btn, btn-primary" maxWidth="Infinity"/>
+            </VBox>
+            
             <Separator style="-fx-background-color: #282828; -fx-padding: 10px 0;"/>
             
             <Label text="Your Playlists" styleClass="sub-header-label"/>

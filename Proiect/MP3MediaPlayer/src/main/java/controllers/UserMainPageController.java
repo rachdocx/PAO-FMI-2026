@@ -12,11 +12,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import models.Advertisement;
 import models.Song;
+import models.Subscription;
 import models.User;
 import service.AdvertisementService;
 import service.AudioFileService;
+import service.CSVAuditService;
 import service.PlaylistService;
 import service.SongService;
+import service.SubscriptionService;
 import javafx.scene.media.MediaPlayer;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +33,15 @@ import exceptions.SubscriptionLimitExceededException;
 public class UserMainPageController {
     private User current_user;
 
-    //done de facut logica pentru diferite subscriptii ce poate face un user DONE nu chiar ca da reclame doar in playlist if im not sure
-    //done de facut logica si pentru delete doar pentru add
-    //done de bagat alta metoda care afiseaza frumos cate secunde are piesa/album/artist/an_apartie_album
-    //TODO de facut user profile unde iti pune poza/schimbat abonament
-    //done DE ADAUGAT BUTOANE DE BACK SI LOGOUT CA E OBNOXIUS RAU SA TREBUIASCA SA OPRESC APLICATIA BFFR
-    //done DE FACUT UN SEARCH ENGINE CARE SA NU FIE ENERVANT
-
+    // done de facut logica pentru diferite subscriptii ce poate face un user DONE
+    // nu chiar ca da reclame doar in playlist if im not sure
+    // done de facut logica si pentru delete doar pentru add
+    // done de bagat alta metoda care afiseaza frumos cate secunde are
+    // piesa/album/artist/an_apartie_album
+    // TODO de facut user profile unde iti pune poza/schimbat abonament
+    // done DE ADAUGAT BUTOANE DE BACK SI LOGOUT CA E OBNOXIUS RAU SA TREBUIASCA SA
+    // OPRESC APLICATIA BFFR
+    // done DE FACUT UN SEARCH ENGINE CARE SA NU FIE ENERVANT
 
     @FXML
     private ListView<String> playlistView;
@@ -44,7 +49,6 @@ public class UserMainPageController {
     private ListView<String> search_results;
     @FXML
     private ListView<String> songPlaylistView;
-
 
     @FXML
     private Label currentPlaylistLabel;
@@ -72,7 +76,8 @@ public class UserMainPageController {
     private VBox assignPlaylistPanel;
     @FXML
     private VBox editPlaylistPanel;
-
+    @FXML
+    private VBox changeSubscriptionPanel;
 
     @FXML
     private Button playButton;
@@ -85,7 +90,8 @@ public class UserMainPageController {
 
     @FXML
     private ComboBox<String> playlistSelectionBox;
-
+    @FXML
+    private ComboBox<String> subscriptionComboBox;
 
     private MediaPlayer mediaPlayer;
     private String currentStreamUrl;
@@ -105,21 +111,21 @@ public class UserMainPageController {
     private String selected_playlist;
     private int current_song_id;
 
-    public void setUser(User user){
+    public void setUser(User user) {
         this.current_user = user;
         welcomeUser.setText(user.getUsername());
-        if((Objects.equals(this.current_user.getSubscription().getName(), "Free")) || (Objects.equals(this.current_user.getSubscription().getName(), "Premium")))
-        {
+        if ((Objects.equals(this.current_user.getSubscription().getName(), "Free"))
+                || (Objects.equals(this.current_user.getSubscription().getName(), "Premium"))) {
             EntityManager em = MainFX.getEmf().createEntityManager();
             AdvertisementService advertisementService = new AdvertisementService(em);
             session_ads = advertisementService.loadAds();
         }
         loadUserPlaylists();
 
-        //listener pentru selectare playlist
-        playlistView.setOnMouseClicked(event ->{
+        // listener pentru selectare playlist
+        playlistView.setOnMouseClicked(event -> {
             String selectedPlaylist = playlistView.getSelectionModel().getSelectedItem();
-            if(selectedPlaylist != null){
+            if (selectedPlaylist != null) {
                 selected_playlist = selectedPlaylist;
                 loadPlaylistTracks(selectedPlaylist);
                 currentPlaylistLabel.setText(selectedPlaylist);
@@ -129,24 +135,24 @@ public class UserMainPageController {
             }
         });
 
-        //listener pentru redare piesa din playlist
+        // listener pentru redare piesa din playlist
         songPlaylistView.setOnMouseClicked(mouseEvent -> {
             currentPlaylistUrls.clear();
             getCurrentPlaylistSongNames.clear();
 
             String selectedSongFormatted = songPlaylistView.getSelectionModel().getSelectedItem();
-            if(selectedSongFormatted != null){
+            if (selectedSongFormatted != null) {
                 String actualSongName = selectedSongFormatted.split("   \\|   ")[0].trim();
                 currentAudioLabel.setText(actualSongName);
                 EntityManager em = MainFX.getEmf().createEntityManager();
-                try{
+                try {
                     SongService songService = new SongService(em);
                     List<Song> songs = songService.searchSongByName(actualSongName);
 
-                    if(!songs.isEmpty()){
+                    if (!songs.isEmpty()) {
                         currentStreamUrl = songs.get(0).getStream_url();
                         current_song_id = songs.get(0).getId();
-                        if(mediaPlayer != null){
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer = null;
                             isPlaying = false;
@@ -162,13 +168,13 @@ public class UserMainPageController {
             }
         });
 
-        //listener pentru muzica din search bar
+        // listener pentru muzica din search bar
         search_results.setOnMouseClicked(event -> {
             currentPlaylistUrls.clear();
             getCurrentPlaylistSongNames.clear();
 
             String selectedSong = search_results.getSelectionModel().getSelectedItem();
-            if(selectedSong != null) {
+            if (selectedSong != null) {
                 selectedSongLabel.setText(selectedSong);
                 assignPlaylistPanel.setVisible(true);
                 assignPlaylistPanel.setManaged(true);
@@ -176,15 +182,15 @@ public class UserMainPageController {
 
                 currentAudioLabel.setText(selectedSong);
                 EntityManager em = MainFX.getEmf().createEntityManager();
-                try{
+                try {
                     SongService songService = new SongService(em);
                     List<Song> songs = songService.searchSongByName(selectedSong);
 
-                    if(!songs.isEmpty()){
+                    if (!songs.isEmpty()) {
                         currentStreamUrl = songs.get(0).getStream_url();
                         current_song_id = songs.get(0).getId();
 
-                        if(mediaPlayer != null){
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer = null;
                             isPlaying = false;
@@ -203,10 +209,10 @@ public class UserMainPageController {
 
     @FXML
     private void onLogOut(ActionEvent event) {
-        try{
-            this.current_user= null;
+        try {
+            this.current_user = null;
 
-            if(mediaPlayer != null) {
+            if (mediaPlayer != null) {
                 mediaPlayer.stop();
                 mediaPlayer = null;
             }
@@ -215,18 +221,86 @@ public class UserMainPageController {
             Parent newRoot = loader.load();
             Scene current_scene = ((Node) event.getSource()).getScene();
             current_scene.setRoot(newRoot);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @FXML
-    private void onDeletePlaylist(){
+    private void onChangeSubscriptionPanelClick() {
+        boolean show = !changeSubscriptionPanel.isVisible();
+        changeSubscriptionPanel.setVisible(show);
+        changeSubscriptionPanel.setManaged(show);
+
+        if (show) {
+            EntityManager em = null;
+            try {
+                em = MainFX.getEmf().createEntityManager();
+                SubscriptionService subService = new SubscriptionService(em);
+                List<String> subs = subService.printAllSubscriptions();
+                subscriptionComboBox.getItems().setAll(subs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen())
+                    em.close();
+            }
+        }
+    }
+
+    @FXML
+    private void onConfirmSubscriptionChange() {
+        String selectedSub = subscriptionComboBox.getValue();
+        if (selectedSub != null) {
+            String subName = selectedSub.split(" - ")[0].trim();
+
+            EntityManager em = null;
+            try {
+                em = MainFX.getEmf().createEntityManager();
+
+                SubscriptionService subService = new SubscriptionService(em);
+                Subscription newSub = subService.getSubscriptionByName(subName);
+
+                if (newSub != null) {
+                    em.getTransaction().begin();
+                    User userToUpdate = em.find(User.class, current_user.getId());
+                    userToUpdate.setSubscription(newSub);
+                    em.getTransaction().commit();
+
+                    this.current_user = userToUpdate;
+
+                    changeSubscriptionPanel.setVisible(false);
+                    changeSubscriptionPanel.setManaged(false);
+
+                    CSVAuditService.getInstance().logAction("change_subscription");
+
+                    if (newSub.getName().equals("Free") || newSub.getName().equals("Premium")) {
+                        AdvertisementService advertisementService = new AdvertisementService(em);
+                        session_ads = advertisementService.loadAds();
+                    } else {
+                        session_ads.clear();
+                    }
+                }
+            } catch (Exception e) {
+                if (em != null && em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                e.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen())
+                    em.close();
+            }
+        }
+    }
+
+    @FXML
+    private void onDeletePlaylist() {
         EntityManager em = null;
-        try{
+        try {
             em = MainFX.getEmf().createEntityManager();
             PlaylistService playlistService = new PlaylistService(em);
             playlistService.deletePlaylist(selected_playlist, this.current_user.getId());
+            CSVAuditService.getInstance().logAction("delete_playlist");
 
             selected_playlist = null;
 
@@ -240,29 +314,29 @@ public class UserMainPageController {
         } catch (DatabaseOperationException e) {
             e.printStackTrace();
         } finally {
-            if(em != null && em.isOpen())
+            if (em != null && em.isOpen())
                 em.close();
         }
     }
 
     @FXML
-    private void onPlayPlaylist(){
+    private void onPlayPlaylist() {
         String playlistToPlay = currentPlaylistLabel.getText();
         EntityManager em = null;
 
-        try{
+        try {
 
             em = MainFX.getEmf().createEntityManager();
             PlaylistService playlistService = new PlaylistService(em);
             List<Song> songs = playlistService.getPlaylistSongs(playlistToPlay, this.current_user.getId());
 
-            if(songs == null || songs.isEmpty())
+            if (songs == null || songs.isEmpty())
                 return;
 
             currentPlaylistUrls.clear();
             getCurrentPlaylistSongNames.clear();
 
-            for(Song s : songs){
+            for (Song s : songs) {
                 currentPlaylistUrls.add(s.getStream_url());
                 getCurrentPlaylistSongNames.add(s.getFile_name());
                 currnetPlaylistSongIds.add(s.getId());
@@ -276,10 +350,10 @@ public class UserMainPageController {
             prevButton.setManaged(true);
 
             playNextSongInQueue();
-        }catch (DatabaseOperationException e) {
+        } catch (DatabaseOperationException e) {
             e.printStackTrace();
         } finally {
-            if(em != null && em.isOpen())
+            if (em != null && em.isOpen())
                 em.close();
         }
     }
@@ -287,7 +361,7 @@ public class UserMainPageController {
     private void playNextSongInQueue() {
 
         if (currentSongIndex >= currentPlaylistUrls.size() || currentSongIndex < 0) {
-            if(mediaPlayer != null) {
+            if (mediaPlayer != null) {
                 mediaPlayer.stop();
                 mediaPlayer = null;
             }
@@ -302,12 +376,11 @@ public class UserMainPageController {
             return;
         }
 
-
         try {
             checkHourLimit();
         } catch (SubscriptionLimitExceededException e) {
             currentAudioLabel.setText(e.getMessage());
-            if(mediaPlayer != null){
+            if (mediaPlayer != null) {
                 mediaPlayer.stop();
                 mediaPlayer = null;
             }
@@ -316,8 +389,7 @@ public class UserMainPageController {
             return;
         }
 
-
-        if(shouldPlayAd()){
+        if (shouldPlayAd()) {
             playAd(() -> {
                 songs_played_hour++;
                 songs_played_session++;
@@ -325,7 +397,6 @@ public class UserMainPageController {
             });
             return;
         }
-
 
         songs_played_hour++;
         songs_played_session++;
@@ -351,8 +422,9 @@ public class UserMainPageController {
         try {
             EntityManager em = MainFX.getEmf().createEntityManager();
             currentService = new SongService(em);
-            Song song = ((SongService)currentService).getSongById(currnetPlaylistSongIds.get(currentSongIndex));
-            
+            Song song = ((SongService) currentService).getSongById(currnetPlaylistSongIds.get(currentSongIndex));
+            CSVAuditService.getInstance().logAction("play_song");
+
             mediaPlayer = currentService.preparePlayer(song, () -> {
                 currentSongIndex++;
                 playNextSongInQueue();
@@ -376,7 +448,7 @@ public class UserMainPageController {
     private void onSkipNext() {
         if (currentService != null) {
             currentService.handleSkipNext(mediaPlayer, () -> {
-                if(!currentPlaylistUrls.isEmpty()) {
+                if (!currentPlaylistUrls.isEmpty()) {
                     currentSongIndex++;
                     playNextSongInQueue();
                 }
@@ -388,7 +460,7 @@ public class UserMainPageController {
     private void onSkipPrev() {
         if (currentService != null) {
             currentService.handleSkipPrev(mediaPlayer, () -> {
-                if(!currentPlaylistUrls.isEmpty() && currentSongIndex > 0) {
+                if (!currentPlaylistUrls.isEmpty() && currentSongIndex > 0) {
                     currentSongIndex--;
                     playNextSongInQueue();
                 }
@@ -396,7 +468,7 @@ public class UserMainPageController {
         }
     }
 
-    //pentru redare doar o melodie
+    // pentru redare doar o melodie
     @FXML
     private void onPlayClick() {
 
@@ -427,7 +499,7 @@ public class UserMainPageController {
                 return;
             }
 
-            if(shouldPlayAd()){
+            if (shouldPlayAd()) {
                 String previousLabel = currentAudioLabel.getText();
                 playAd(() -> {
                     currentAudioLabel.setText(previousLabel);
@@ -448,22 +520,23 @@ public class UserMainPageController {
         try {
             EntityManager em = MainFX.getEmf().createEntityManager();
             currentService = new SongService(em);
-            Song song = ((SongService)currentService).getSongById(current_song_id);
+            Song song = ((SongService) currentService).getSongById(current_song_id);
             if (mediaPlayer != null) {
                 mediaPlayer.stop();
                 mediaPlayer = null;
             }
+            CSVAuditService.getInstance().logAction("play_song");
             mediaPlayer = currentService.preparePlayer(song, () -> {
                 playButton.setText("▶ Play");
                 isPlaying = false;
                 mediaPlayer.stop();
                 mediaPlayer = null;
             });
-            
+
             currentAudioLabel.setText(currentService.getDisplayMessage(song));
             skipButton.setDisable(!currentService.isSkippable());
             prevButton.setDisable(!currentService.isSkippable());
-            
+
             mediaPlayer.play();
             playButton.setText("⏸ Pause");
             isPlaying = true;
@@ -472,10 +545,10 @@ public class UserMainPageController {
         }
     }
 
-    //logica de dat load la track uri albume
-    private void loadPlaylistTracks(String seelectedPlaylist){
+    // logica de dat load la track uri albume
+    private void loadPlaylistTracks(String seelectedPlaylist) {
         EntityManager em = null;
-        try{
+        try {
             em = MainFX.getEmf().createEntityManager();
             PlaylistService playlist_service = new PlaylistService(em);
             List<String> tracks = playlist_service.playlistTracks(seelectedPlaylist, this.current_user.getId());
@@ -490,46 +563,45 @@ public class UserMainPageController {
         }
     }
 
-    //logica de dat load la playlist uri
-    public void loadUserPlaylists(){
+    // logica de dat load la playlist uri
+    public void loadUserPlaylists() {
         EntityManager em = null;
-        try{
+        try {
             em = MainFX.getEmf().createEntityManager();
             PlaylistService playlist_service = new PlaylistService(em);
 
             List<String> playlists = playlist_service.userPlaylists(this.current_user);
 
-            if(playlists != null){
+            if (playlists != null) {
                 playlistView.getItems().setAll(playlists);
                 playlistSelectionBox.getItems().setAll(playlists);
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
-            if(em != null && em.isOpen())
+        } finally {
+            if (em != null && em.isOpen())
                 em.close();
         }
     }
 
-    //logica pentru adaugat un playlist
+    // logica pentru adaugat un playlist
     @FXML
-    private void onAddPlaylistPanelClick(){
+    private void onAddPlaylistPanelClick() {
         boolean show = !addPlaylistPanel.isVisible();
         addPlaylistPanel.setVisible(show);
         addPlaylistPanel.setManaged(show);
     }
 
     @FXML
-    public void onAddPlaylistClick(){
+    public void onAddPlaylistClick() {
         String playlist_name = playlist_nameField.getText();
 
         EntityManager em = null;
-        try{
+        try {
             em = MainFX.getEmf().createEntityManager();
             PlaylistService playlist_service = new PlaylistService(em);
             playlist_service.addPlaylist(playlist_name, this.current_user.getId());
+            CSVAuditService.getInstance().logAction("add_playlist");
 
             playlist_nameField.clear();
             addPlaylistPanel.setManaged(false);
@@ -544,34 +616,33 @@ public class UserMainPageController {
         }
     }
 
-    //logica de search la o melodie
+    // logica de search la o melodie
     @FXML
-    private void onSearchClick(){
+    private void onSearchClick() {
         String query = search_field.getText();
         EntityManager em = null;
-        try{
+        try {
             em = MainFX.getEmf().createEntityManager();
             SongService service = new SongService(em);
             search_res = service.searchSongByName(query);
             Set<String> names = new TreeSet<>();
 
-            for(var song : search_res){
+            for (var song : search_res) {
                 names.add(song.getFile_name());
             }
             search_results.getItems().setAll(names);
+            CSVAuditService.getInstance().logAction("search_song");
 
-
-        }catch (DatabaseOperationException e){
+        } catch (DatabaseOperationException e) {
             e.printStackTrace();
-        }
-        finally {
-            if(em != null && em.isOpen())
+        } finally {
+            if (em != null && em.isOpen())
                 em.close();
         }
 
     }
 
-    //logica de dat play la o melodie
+    // logica de dat play la o melodie
     @FXML
     private void onAssignToPlaylistClick() {
         String selectedSong = selectedSongLabel.getText();
@@ -583,6 +654,7 @@ public class UserMainPageController {
                 em = MainFX.getEmf().createEntityManager();
                 PlaylistService playlistService = new PlaylistService(em);
                 playlistService.addSongToPlaylistByName(selectedSong, selectedPlaylist, current_user.getId());
+                CSVAuditService.getInstance().logAction("add_song_to_playlist");
                 assignPlaylistPanel.setVisible(false);
                 assignPlaylistPanel.setManaged(false);
 
@@ -595,25 +667,23 @@ public class UserMainPageController {
         }
     }
 
-    //logica pentru reclame
-    private boolean shouldPlayAd(){
+    // logica pentru reclame
+    private boolean shouldPlayAd() {
         String sub = this.current_user.getSubscription().getName();
 
-        if(sub.equals("Premium Plus") || sub.equals("Premium PLUS")){
+        if (sub.equals("Premium Plus") || sub.equals("Premium PLUS")) {
             return false;
         }
-        if(sub.equals("Free")){
-            if(songs_played_session > 0 && songs_played_session % 5 == 0){
+        if (sub.equals("Free")) {
+            if (songs_played_session > 0 && songs_played_session % 5 == 0) {
                 return true;
-            }
-            else
+            } else
                 return false;
         }
-        if(sub.equals("Premium")){
-            if(songs_played_session > 0 && songs_played_session % 10 == 0){
+        if (sub.equals("Premium")) {
+            if (songs_played_session > 0 && songs_played_session % 10 == 0) {
                 return true;
-            }
-            else
+            } else
                 return false;
         }
         return false;
@@ -621,7 +691,7 @@ public class UserMainPageController {
 
     private void checkHourLimit() {
         String sub = this.current_user.getSubscription().getName();
-        if(!sub.equals("Free"))
+        if (!sub.equals("Free"))
             return;
 
         long now = System.currentTimeMillis();
@@ -635,8 +705,8 @@ public class UserMainPageController {
         }
     }
 
-    private void playAd(Runnable afterAd){
-        if(session_ads.isEmpty()){
+    private void playAd(Runnable afterAd) {
+        if (session_ads.isEmpty()) {
             afterAd.run();
             return;
         }
@@ -644,12 +714,12 @@ public class UserMainPageController {
         Advertisement ad = session_ads.get(ad_index % session_ads.size());
         ad_index++;
 
-        if(mediaPlayer != null){
+        if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer = null;
         }
 
-        try{
+        try {
             EntityManager em = MainFX.getEmf().createEntityManager();
             currentService = new AdvertisementService(em);
             mediaPlayer = currentService.preparePlayer(ad, () -> {
@@ -665,11 +735,12 @@ public class UserMainPageController {
             currentAdLabel.setManaged(true);
             currentAdLabel.setVisible(true);
 
-            currentAdLabel.setOnMouseClicked(event ->{
+            currentAdLabel.setOnMouseClicked(event -> {
                 String url = ad.getBrand_forwarding();
                 try {
                     java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 currentAudioLabel.setCursor(javafx.scene.Cursor.HAND);
             });
 
@@ -679,31 +750,33 @@ public class UserMainPageController {
             mediaPlayer.play();
             playButton.setText("Advertisement");
             isPlaying = true;
-        }catch(DatabaseOperationException e){
+        } catch (DatabaseOperationException e) {
             e.printStackTrace();
             afterAd.run();
         }
     }
 
     @FXML
-    private void onEditPlaylist(){
+    private void onEditPlaylist() {
         editPlaylistPanel.setManaged(true);
         editPlaylistPanel.setVisible(true);
 
     }
+
     @FXML
-    private void onEditPlaylistClick(){
+    private void onEditPlaylistClick() {
         String playlistName = editPlaylistName.getText();
         String currentPlaylist = selected_playlist;
-        if(playlistName != null && currentPlaylist != null){
+        if (playlistName != null && currentPlaylist != null) {
             try {
                 EntityManager em = MainFX.getEmf().createEntityManager();
                 PlaylistService playlistService = new PlaylistService(em);
                 playlistService.editPlaylistName(currentPlaylist, this.current_user.getId(), playlistName);
+                CSVAuditService.getInstance().logAction("edit_playlist");
                 loadUserPlaylists();
                 editPlaylistPanel.setVisible(false);
                 editPlaylistPanel.setManaged(false);
-            }catch(DatabaseOperationException e){
+            } catch (DatabaseOperationException e) {
                 e.printStackTrace();
             }
         }

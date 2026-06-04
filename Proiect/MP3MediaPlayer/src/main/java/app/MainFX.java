@@ -12,6 +12,7 @@ public class MainFX extends Application {
 
     public static EntityManagerFactory emf;
     public static EntityManager em;
+
     public static EntityManagerFactory getEmf() {
         return emf;
     }

@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import models.Artist;
 import service.AlbumService;
+import service.CSVAuditService;
 import javafx.scene.control.ListView;
 import service.SongService;
 import java.util.List;
@@ -98,7 +99,7 @@ public class ArtistMainPageController {
         songAlbumView.setOnMouseClicked(event -> {
             String selectedSong = songAlbumView.getSelectionModel().getSelectedItem();
 
-            if(selectedSong != null){
+            if (selectedSong != null) {
                 removeFromAlbumButton.setVisible(true);
                 removeFromAlbumButton.setManaged(true);
 
@@ -127,9 +128,10 @@ public class ArtistMainPageController {
             }
         });
     }
+
     @FXML
     private void onLogOut(javafx.event.ActionEvent event) {
-        try{
+        try {
             this.current_artist = null;
             this.current_album = null;
 
@@ -138,7 +140,7 @@ public class ArtistMainPageController {
             Scene current_scene = ((Node) event.getSource()).getScene();
 
             current_scene.setRoot(newRoot);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -151,6 +153,7 @@ public class ArtistMainPageController {
             em = MainFX.getEmf().createEntityManager();
             AlbumService albumService = new AlbumService(em);
             albumService.deleteAlbum(selectedAlbum, current_artist.getId());
+            CSVAuditService.getInstance().logAction("delete_album");
 
             AlbumSongs.setVisible(false);
             AlbumSongs.setManaged(false);
@@ -169,7 +172,7 @@ public class ArtistMainPageController {
     }
 
     @FXML
-    private void onDeleteSong(){
+    private void onDeleteSong() {
         String selectedSongFormatted = songView.getSelectionModel().getSelectedItem();
         String selectedSong = selectedSongFormatted != null ? selectedSongFormatted.split("   \\|   ")[0].trim() : null;
         EntityManager em = null;
@@ -177,15 +180,16 @@ public class ArtistMainPageController {
             em = MainFX.getEmf().createEntityManager();
             SongService songService = new SongService(em);
             songService.deleteSong(selectedSong, current_artist.getId());
+            CSVAuditService.getInstance().logAction("delete_song");
 
             deleteSongButton.setVisible(false);
             deleteSongButton.setManaged(false);
 
             loadArtistSongs();
-        }catch(DatabaseOperationException e){
+        } catch (DatabaseOperationException e) {
             e.printStackTrace();
-        }finally {
-            if(em != null && em.isOpen())
+        } finally {
+            if (em != null && em.isOpen())
                 em.close();
         }
     }
@@ -201,6 +205,7 @@ public class ArtistMainPageController {
                 em = MainFX.getEmf().createEntityManager();
                 AlbumService albumService = new AlbumService(em);
                 albumService.assignSongToAlbum(selectedSong, selectedAlbum, current_artist.getId());
+                CSVAuditService.getInstance().logAction("assign_song_to_album");
 
                 assignAlbumPanel.setVisible(false);
                 assignAlbumPanel.setManaged(false);
@@ -244,6 +249,7 @@ public class ArtistMainPageController {
             AlbumService album_service = new AlbumService(em);
 
             album_service.addAlbum(album_title, release_year, this.current_artist);
+            CSVAuditService.getInstance().logAction("add_album");
             albumTitleField.clear();
             release_yearField.clear();
 
@@ -261,24 +267,26 @@ public class ArtistMainPageController {
     }
 
     @FXML
-    private void onRemoveFromAlbum(){
+    private void onRemoveFromAlbum() {
         String selectedSongFormatted = songAlbumView.getSelectionModel().getSelectedItem();
         String selectedSong = selectedSongFormatted != null ? selectedSongFormatted.split("   \\|   ")[0].trim() : null;
         EntityManager em = null;
-        try{
+        try {
             em = MainFX.getEmf().createEntityManager();
             SongService songService = new SongService(em);
             songService.removeSongFromAlbum(selectedSong, this.current_artist.getId());
+            CSVAuditService.getInstance().logAction("remove_song_from_album");
 
             removeFromAlbumButton.setVisible(false);
             removeFromAlbumButton.setManaged(false);
 
             loadAlbumTracks(current_album);
-        }catch (DatabaseOperationException e) {
+        } catch (DatabaseOperationException e) {
             if (em != null && em.isOpen())
                 em.close();
         }
     }
+
     @FXML
     private void onAddSongClick() {
         String title = titleField.getText();
@@ -291,6 +299,7 @@ public class ArtistMainPageController {
             em = MainFX.getEmf().createEntityManager();
             SongService song_service = new SongService(em);
             song_service.addSong(title, duration, url, this.current_artist.getId(), genre, 0);
+            CSVAuditService.getInstance().logAction("add_song");
 
             titleField.clear();
             genreField.clear();
@@ -349,7 +358,6 @@ public class ArtistMainPageController {
         try {
             em = MainFX.getEmf().createEntityManager();
             AlbumService album_service = new AlbumService(em);
-
             List<String> albums = album_service.artistAlbums(this.current_artist);
 
             if (albums != null) {
